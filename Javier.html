@@ -3,22 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Javier — JS Web IDE</title>
+<title>Javier — Professional JS Web IDE</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Javier IDE","short_name":"Javier","start_url":".","display":"standalone","background_color":"%231e1e1e","theme_color":"%23007acc","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23007acc%22 width=%22100%22 height=%22100%22 rx=%2220%22/%3E%3Ctext x=%2250%22 y=%2265%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22white%22%3EJ%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <style>
-  :root,[data-theme="dark"]{--bg:#1e1e1e;--panel:#252526;--active:#37373d;--hover:#2a2d2e;--text:#d4d4d4;--muted:#858585;--accent:#007acc;--accent2:#1e8fd1;--border:#3e3e42;--err:#f44747;--warn:#cca700;--ok:#4ec9b0;--bp:#c33038;--kw:#569cd6;--str:#ce9178;--com:#6a9955;--num:#b5cea8;--fn:#dcdcaa;--input-bg:#1a1a1a;--card-bg:rgba(255,255,255,.03);--collab:#9333ea;--collab2:#7c3aed}
-  [data-theme="light"]{--bg:#ffffff;--panel:#f3f3f3;--active:#e0e0e0;--hover:#ebebeb;--text:#1e1e1e;--muted:#666666;--accent:#0078d4;--accent2:#106ebe;--border:#d4d4d4;--err:#d13438;--warn:#8a6914;--ok:#107c10;--bp:#c33038;--kw:#0000ff;--str:#a31515;--com:#008000;--num:#098658;--fn:#795e26;--input-bg:#ffffff;--card-bg:rgba(0,0,0,.03);--collab:#9333ea;--collab2:#7c3aed}
+  :root,[data-theme="dark"]{--bg:#1e1e1e;--panel:#252526;--active:#37373d;--hover:#2a2d2e;--text:#d4d4d4;--muted:#858585;--accent:#007acc;--accent2:#1e8fd1;--border:#3e3e42;--err:#f44747;--warn:#cca700;--ok:#4ec9b0;--bp:#c33038;--kw:#569cd6;--str:#ce9178;--com:#6a9955;--num:#b5cea8;--fn:#dcdcaa;--input-bg:#1a1a1a;--card-bg:rgba(255,255,255,.03);--collab:#9333ea;--collab2:#7c3aed;--line-hl:rgba(255,255,255,.04);--cursor-other:#ff6b9d;--ai-ghost:#6a737d;--ai-bg:#2a2b2e;--ai-msg-user:#3a3d42;--ai-msg-ai:#32353b;--ai-accent:#10a37f}
+  [data-theme="light"]{--bg:#ffffff;--panel:#f3f3f3;--active:#e0e0e0;--hover:#ebebeb;--text:#1e1e1e;--muted:#666666;--accent:#0078d4;--accent2:#106ebe;--border:#d4d4d4;--err:#d13438;--warn:#8a6914;--ok:#107c10;--bp:#c33038;--kw:#0000ff;--str:#a31515;--com:#008000;--num:#098658;--fn:#795e26;--input-bg:#ffffff;--card-bg:rgba(0,0,0,.03);--collab:#9333ea;--collab2:#7c3aed;--line-hl:rgba(0,0,0,.04);--cursor-other:#ff1493;--ai-ghost:#999999;--ai-bg:#f8f9fa;--ai-msg-user:#e9ecef;--ai-msg-ai:#ffffff;--ai-accent:#10a37f}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100vh;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:13px;transition:background .3s,color .3s}
-
-  /* ============ AUTH ============ */
   .auth-screen{position:fixed;inset:0;z-index:2000;background:radial-gradient(ellipse at top,#1a2332 0%,#0d1117 50%,#000 100%);display:flex;align-items:center;justify-content:center;padding:20px;transition:opacity .5s,transform .5s}
   [data-theme="light"] .auth-screen{background:radial-gradient(ellipse at top,#e0f0ff 0%,#f5f9ff 50%,#fff 100%)}
   .auth-screen.hidden{opacity:0;transform:scale(1.05);pointer-events:none}
   .auth-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:up .6s ease-out}
-  [data-theme="light"] .auth-card{box-shadow:0 20px 60px rgba(0,0,0,.1)}
   @keyframes up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
   .auth-logo{font-size:48px;font-weight:700;background:linear-gradient(135deg,#007acc 0%,#4ec9b0 50%,#569cd6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;margin-bottom:4px;letter-spacing:-1px}
   .auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px;letter-spacing:2px;text-transform:uppercase}
@@ -30,18 +28,15 @@
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .field{margin-bottom:14px}
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
-  .field input{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:6px;font-size:13px;transition:border-color .2s}
+  .field input{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:6px;font-size:13px}
   .field input:focus{outline:none;border-color:var(--accent)}
-  .auth-btn{width:100%;background:linear-gradient(135deg,#007acc,#1e8fd1);color:white;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:transform .15s;margin-top:8px}
-  .auth-btn:hover{transform:translateY(-1px)}
+  .auth-btn{width:100%;background:linear-gradient(135deg,#007acc,#1e8fd1);color:white;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
   .auth-msg{padding:10px 12px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none}
   .auth-msg.show{display:block}
   .auth-msg.error{background:rgba(244,71,71,.1);border-left:3px solid var(--err);color:var(--err)}
   .auth-msg.success{background:rgba(78,201,176,.1);border-left:3px solid var(--ok);color:var(--ok)}
   .guest-link{text-align:center;margin-top:16px;font-size:12px;color:var(--muted)}
   .guest-link a{color:var(--accent);cursor:pointer;text-decoration:underline}
-
-  /* ============ LANDING ============ */
   .landing{position:fixed;inset:0;z-index:1000;background:radial-gradient(ellipse at top,#1a2332 0%,#0d1117 50%,#000 100%);display:flex;align-items:center;justify-content:center;transition:opacity .5s,transform .5s;overflow:auto}
   [data-theme="light"] .landing{background:radial-gradient(ellipse at top,#e0f0ff 0%,#f5f9ff 50%,#fff 100%)}
   .landing.hidden{opacity:0;transform:scale(1.05);pointer-events:none}
@@ -56,17 +51,13 @@
   .landing-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:50px}
   .btn-l{padding:14px 28px;border-radius:8px;border:none;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
   .btn-p{background:linear-gradient(135deg,#007acc,#1e8fd1);color:white;box-shadow:0 4px 20px rgba(0,122,204,.4)}
-  .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,122,204,.6)}
   .btn-s{background:var(--card-bg);color:var(--text);border:1px solid var(--border)}
-  .btn-s:hover{background:var(--hover);border-color:var(--accent)}
   .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;text-align:left}
   .feature{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s}
   .feature:hover{background:var(--hover);transform:translateY(-3px);border-color:var(--accent)}
   .feat-icon{font-size:28px;margin-bottom:10px}
   .feat-t{font-size:15px;font-weight:600;margin-bottom:6px}
   .feat-d{font-size:13px;color:var(--muted);line-height:1.5}
-
-  /* ============ IDE ============ */
   .ide-root{display:flex;flex-direction:column;height:100vh;opacity:0;transition:opacity .5s}
   .ide-root.visible{opacity:1}
   header{height:42px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;justify-content:space-between}
@@ -80,9 +71,9 @@
   .actions button.secondary{background:var(--active);color:var(--text)}
   .actions button.share{background:#1a7f64}
   .actions button.projects{background:var(--collab2)}
-  .actions button.projects:hover{background:var(--collab)}
   .actions button.collab{background:var(--collab)}
-  .actions button.collab:hover{background:var(--collab2)}
+  .actions button.ai{background:linear-gradient(135deg,#10a37f,#0d8a6b)}
+  .actions button.ai:hover{background:linear-gradient(135deg,#0d8a6b,#0a7355)}
   .actions button.gh{background:#24292e}
   .notif-badge{position:absolute;top:-4px;right:-4px;background:var(--err);color:white;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
@@ -90,7 +81,6 @@
   .profile-btn .avatar{font-size:16px}
   .profile-btn .chevron{font-size:10px;opacity:.6}
   .profile-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:220px;z-index:50;display:none;overflow:hidden}
-  [data-theme="light"] .profile-menu{box-shadow:0 8px 24px rgba(0,0,0,.1)}
   .profile-menu.open{display:block;animation:fadeIn .15s}
   .profile-menu-header{padding:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
   .profile-menu-avatar{font-size:32px;width:44px;height:44px;background:var(--card-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
@@ -101,8 +91,8 @@
   .profile-menu-item:hover{background:var(--hover)}
   .profile-menu-item.danger{color:var(--err)}
   .profile-menu-divider{height:1px;background:var(--border);margin:4px 0}
-
-  main{flex:1;display:grid;grid-template-columns:240px 1fr;grid-template-rows:1fr 200px;height:calc(100vh - 42px)}
+  main{flex:1;display:grid;grid-template-columns:240px 1fr;grid-template-rows:1fr 200px;height:calc(100vh - 42px);transition:grid-template-columns .3s}
+  main.ai-open{grid-template-columns:240px 1fr 380px}
   .sidebar{background:var(--panel);border-right:1px solid var(--border);grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
   .side-tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border)}
   .side-tabs button{flex:1;background:none;border:none;color:var(--muted);padding:10px 8px;cursor:pointer;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid transparent}
@@ -127,15 +117,24 @@
   .setp button{background:var(--active);color:var(--text);border:1px solid var(--border);padding:6px 10px;cursor:pointer;border-radius:3px;font-size:12px;margin-right:5px;margin-bottom:5px}
   .stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
   .stat span:last-child{color:var(--accent);font-weight:600}
-  .editor{position:relative;background:var(--bg);overflow:hidden}
+  .editor{position:relative;background:var(--bg);overflow:hidden;display:flex}
+  .editor-main{flex:1;position:relative;overflow:hidden}
   .ln{position:absolute;left:0;top:0;bottom:0;width:45px;background:var(--bg);color:var(--muted);text-align:right;padding:10px 6px 10px 0;font-family:Consolas,monospace;font-size:14px;line-height:1.5;user-select:none;overflow:hidden;z-index:3;border-right:1px solid var(--border)}
-  .ln-n{display:flex;justify-content:flex-end;align-items:center;height:1.5em;cursor:pointer;padding-right:4px}
+  .ln-n{display:flex;justify-content:flex-end;align-items:center;height:1.5em;cursor:pointer;padding-right:4px;transition:background .1s}
+  .ln-n:hover{background:var(--hover)}
   .ln-n.bp{background:var(--bp);color:white}
-  .ew{position:absolute;left:45px;right:0;top:0;bottom:0}
+  .ln-n.current{background:var(--line-hl);color:var(--text);font-weight:600}
+  .ew{position:absolute;left:45px;right:100px;top:0;bottom:0}
   #ed,#hi{position:absolute;top:0;left:0;width:100%;height:100%;padding:10px;border:none;outline:none;resize:none;background:transparent;font-family:Consolas,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow:auto;tab-size:2;color:var(--text)}
   #ed{color:transparent;caret-color:var(--text);z-index:2}
   #hi{z-index:1;pointer-events:none}
+  .current-line{position:absolute;left:0;right:0;height:1.5em;background:var(--line-hl);pointer-events:none;z-index:0;transition:top .05s}
   .tok-k{color:var(--kw)}.tok-s{color:var(--str)}.tok-c{color:var(--com);font-style:italic}.tok-n{color:var(--num)}.tok-f{color:var(--fn)}
+  .minimap{position:absolute;right:0;top:0;bottom:0;width:100px;background:var(--panel);border-left:1px solid var(--border);overflow:hidden;cursor:pointer}
+  .minimap-content{position:absolute;top:0;left:0;right:0;transform:scaleY(0.2) scaleX(0.5);transform-origin:top left;font-family:Consolas,monospace;font-size:14px;line-height:1.5;white-space:pre;color:var(--muted);pointer-events:none;opacity:.6}
+  .minimap-viewport{position:absolute;left:0;right:0;background:rgba(0,122,204,.15);border:1px solid rgba(0,122,204,.3);pointer-events:none;transition:top .1s}
+  .ai-suggestion{position:absolute;background:rgba(16,163,127,.1);border:1px solid rgba(16,163,127,.3);border-radius:4px;padding:4px 8px;font-size:12px;color:var(--ai-ghost);pointer-events:none;z-index:5;white-space:pre-wrap;font-family:Consolas,monospace;max-width:400px;display:none}
+  .ai-suggestion.show{display:block}
   .bp{grid-column:2;background:var(--panel);border-top:1px solid var(--border);display:flex;flex-direction:column}
   .btabs{display:flex;background:var(--active);padding:0 8px}
   .btabs button{background:none;border:none;color:var(--muted);padding:6px 12px;cursor:pointer;font-size:12px;border-bottom:2px solid transparent}
@@ -153,7 +152,6 @@
   .mo{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
   .mo.open{display:flex}
   .md{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:24px;min-width:420px;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-  [data-theme="light"] .md{box-shadow:0 20px 60px rgba(0,0,0,.15)}
   .md h3{margin-bottom:15px;color:var(--accent)}
   .md input,.md textarea,.md select{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:8px;margin-bottom:10px;border-radius:3px;font-size:13px;font-family:inherit}
   .md textarea{min-height:80px;resize:vertical;font-family:Consolas,monospace}
@@ -163,19 +161,54 @@
   .ma .pri{background:var(--accent);color:white}
   .ma .sec{background:var(--active);color:var(--text)}
   .ma .danger{background:var(--err);color:white}
-  .ma .collab{background:var(--collab);color:white}
-  .md .info{background:rgba(0,122,204,.1);border-left:3px solid var(--accent);padding:8px 12px;font-size:12px;margin-bottom:12px;border-radius:2px;color:var(--text)}
+  .md .info{background:rgba(0,122,204,.1);border-left:3px solid var(--accent);padding:8px 12px;font-size:12px;margin-bottom:12px;border-radius:2px}
   .md a{color:var(--accent)}
   .stb{height:22px;background:var(--accent);color:white;display:flex;align-items:center;padding:0 12px;font-size:11px;justify-content:space-between}
-  .stb .l,.stb .r{display:flex;gap:12px}
+  .stb .l,.stb .r{display:flex;gap:12px;align-items:center}
+  .stb-item{display:flex;align-items:center;gap:4px}
   .toast{position:fixed;bottom:40px;right:20px;background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);padding:10px 16px;border-radius:4px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:2000;animation:si .25s ease-out;max-width:400px;color:var(--text)}
   .toast.error{border-left-color:var(--err)}.toast.success{border-left-color:var(--ok)}.toast.collab{border-left-color:var(--collab)}
   @keyframes si{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-
-  /* ============ COLLABORATION ============ */
-  .collab-status{position:fixed;top:50px;right:20px;background:var(--collab);color:white;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;z-index:90;box-shadow:0 4px 12px rgba(147,51,234,.4);animation:slideIn .3s ease-out}
+  .ai-panel{grid-column:3;grid-row:1/3;background:var(--ai-bg);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s;transform:translateX(100%)}
+  .ai-panel.open{transform:translateX(0)}
+  .ai-header{padding:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--panel)}
+  .ai-header h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin:0}
+  .ai-header-actions{display:flex;gap:6px}
+  .ai-header-actions button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px}
+  .ai-header-actions button:hover{background:var(--hover);color:var(--text)}
+  .ai-chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .ai-msg{max-width:95%;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.5;position:relative;word-wrap:break-word}
+  .ai-msg.user{background:var(--ai-msg-user);align-self:flex-end;border-bottom-right-radius:2px}
+  .ai-msg.ai{background:var(--ai-msg-ai);align-self:flex-start;border-bottom-left-radius:2px;border:1px solid var(--border)}
+  .ai-msg .role{font-size:11px;font-weight:600;margin-bottom:4px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .ai-msg .role .badge{background:var(--ai-accent);color:white;padding:1px 6px;border-radius:3px;font-size:10px}
+  .ai-msg pre{background:var(--bg);padding:10px;border-radius:4px;overflow-x:auto;margin:8px 0;font-size:12px;border:1px solid var(--border)}
+  .ai-msg code{font-family:Consolas,monospace;white-space:pre-wrap}
+  .ai-msg p{margin:4px 0}
+  .ai-msg .ai-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .ai-msg .ai-actions button{background:var(--accent);color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px;transition:opacity .15s}
+  .ai-msg .ai-actions button:hover{opacity:.85}
+  .ai-msg .ai-actions button.secondary{background:var(--active);color:var(--text)}
+  .ai-loading{display:flex;gap:4px;padding:8px;align-self:flex-start}
+  .ai-loading div{width:6px;height:6px;background:var(--ai-accent);border-radius:50%;animation:aiBounce 1s infinite}
+  .ai-loading div:nth-child(2){animation-delay:.2s}
+  .ai-loading div:nth-child(3){animation-delay:.4s}
+  @keyframes aiBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-6px);opacity:1}}
+  .ai-input-area{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--panel)}
+  .ai-input-area textarea{flex:1;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:8px;border-radius:6px;font-size:13px;resize:none;min-height:40px;max-height:120px;font-family:inherit}
+  .ai-input-area textarea:focus{outline:none;border-color:var(--ai-accent)}
+  .ai-send{background:var(--ai-accent);color:white;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .1s;flex-shrink:0}
+  .ai-send:hover{transform:scale(1.05)}
+  .ai-send:disabled{opacity:.5;cursor:not-allowed}
+  .ai-welcome{text-align:center;padding:40px 20px;color:var(--muted)}
+  .ai-welcome-icon{font-size:48px;margin-bottom:12px;opacity:.6}
+  .ai-welcome h4{color:var(--text);margin-bottom:8px;font-size:15px}
+  .ai-welcome p{font-size:12px;line-height:1.5;margin-bottom:16px}
+  .ai-suggestions{display:flex;flex-direction:column;gap:6px}
+  .ai-suggestion-btn{background:var(--input-bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;text-align:left;transition:all .15s}
+  .ai-suggestion-btn:hover{border-color:var(--ai-accent);background:var(--hover)}
+  .collab-status{position:fixed;top:50px;right:20px;background:var(--collab);color:white;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;z-index:90;box-shadow:0 4px 12px rgba(147,51,234,.4)}
   .collab-status.active{display:flex}
-  @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
   .collab-status .dot{width:8px;height:8px;background:white;border-radius:50%;animation:blink 1.5s infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
   .collab-users{display:flex;gap:8px;margin-top:12px}
@@ -194,46 +227,29 @@
   .collab-invite-actions .decline{background:var(--err);color:white}
   .collab-empty{text-align:center;padding:40px 20px;color:var(--muted)}
   .collab-empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
-
-  /* ============ PROJECTS ============ */
-  .projects-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap}
-  .projects-search{flex:1;min-width:200px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:6px;font-size:13px}
-  .projects-search:focus{outline:none;border-color:var(--accent)}
   .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;max-height:60vh;overflow-y:auto;padding:4px}
   .project-card{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;position:relative;display:flex;flex-direction:column}
-  .project-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
-  [data-theme="light"] .project-card:hover{box-shadow:0 6px 16px rgba(0,0,0,.1)}
+  .project-card:hover{border-color:var(--accent);transform:translateY(-2px)}
   .project-card.active{border-color:var(--ok);background:rgba(78,201,176,.05)}
   .project-card.active::before{content:"✓ Активный";position:absolute;top:8px;right:8px;background:var(--ok);color:white;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
   .project-card.collab{border-color:var(--collab);background:rgba(147,51,234,.05)}
   .project-card.collab::after{content:"👥 Коллаборация";position:absolute;top:8px;left:8px;background:var(--collab);color:white;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
   .project-card.collab.active::before{right:120px}
   .project-card-icon{font-size:32px;margin-bottom:10px}
-  .project-card-name{font-weight:600;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:40px}
-  .project-card-desc{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .project-card-meta{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:auto;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
-  .project-card-meta span{display:flex;align-items:center;gap:3px}
+  .project-card-name{font-weight:600;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .project-card-meta{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:auto;padding-top:10px;border-top:1px solid var(--border)}
   .project-card-actions{position:absolute;top:8px;right:8px;display:none;gap:4px}
-  .project-card.active .project-card-actions{right:80px}
-  .project-card.collab.active .project-card-actions{right:200px}
   .project-card:hover .project-card-actions{display:flex}
-  .project-card-action{background:var(--panel);border:1px solid var(--border);color:var(--text);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s}
-  .project-card-action:hover{background:var(--accent);color:white;border-color:var(--accent)}
-  .project-card-action.danger:hover{background:var(--err);border-color:var(--err)}
-  .projects-stats{display:flex;gap:16px;font-size:12px;color:var(--muted);padding:10px 0;border-top:1px solid var(--border);margin-top:10px}
-  .projects-stats span{display:flex;align-items:center;gap:4px}
-  .projects-stats b{color:var(--accent)}
-
-  @media (max-width:768px){main{grid-template-columns:1fr;grid-template-rows:auto 1fr 200px}.sidebar{grid-row:auto;max-height:200px;border-right:none;border-bottom:1px solid var(--border)}.bp{grid-column:1}.menu-bar{display:none}.logo-big{font-size:48px}.tagline{font-size:18px}.desc{font-size:14px}.btn-l{padding:12px 20px;font-size:14px}.landing-content{padding:20px}.md{min-width:auto;margin:10px;max-width:calc(100vw - 20px)}.auth-card{padding:24px}.projects-grid{grid-template-columns:1fr}.collab-status{top:auto;bottom:30px;right:10px}}
+  .project-card-action{background:var(--panel);border:1px solid var(--border);color:var(--text);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .project-card-action:hover{background:var(--err);color:white;border-color:var(--err)}
+  @media (max-width:768px){main{grid-template-columns:1fr;grid-template-rows:auto 1fr 200px}main.ai-open{grid-template-columns:1fr}.sidebar{grid-row:auto;max-height:200px;border-right:none;border-bottom:1px solid var(--border)}.bp{grid-column:1}.menu-bar{display:none}.logo-big{font-size:48px}.tagline{font-size:18px}.desc{font-size:14px}.btn-l{padding:12px 20px;font-size:14px}.landing-content{padding:20px}.md{min-width:auto;margin:10px;max-width:calc(100vw - 20px)}.auth-card{padding:24px}.projects-grid{grid-template-columns:1fr}.collab-status{top:auto;bottom:30px;right:10px}.minimap{display:none}.ew{right:0}.ai-panel{position:fixed;right:0;top:42px;bottom:0;width:100%;max-width:400px;z-index:50;box-shadow:-4px 0 20px rgba(0,0,0,.3)}}
 </style>
 </head>
 <body>
-
-<!-- ============ AUTH ============ -->
 <div class="auth-screen" id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">Javier</div>
-    <div class="auth-sub">JavaScript Web IDE</div>
+    <div class="auth-sub">Professional JS Web IDE</div>
     <div class="auth-tabs">
       <button class="auth-tab active" data-auth="login">Вход</button>
       <button class="auth-tab" data-auth="register">Регистрация</button>
@@ -254,30 +270,26 @@
     <div class="guest-link">или <a onclick="Auth.asGuest()">войти как гость</a></div>
   </div>
 </div>
-
-<!-- ============ LANDING ============ -->
 <div class="landing hidden" id="landing">
   <div class="landing-bg"></div>
   <div class="landing-content">
     <div class="logo-big">Javier</div>
-    <div class="logo-sub">JavaScript Web IDE</div>
+    <div class="logo-sub">Professional JS Web IDE</div>
     <div class="welcome-user" id="welcome-user"></div>
-    <div class="tagline">Пишите, тестируйте и делитесь JavaScript-кодом прямо в браузере</div>
-    <div class="desc">Полнофункциональная веб-среда разработки с коллаборацией, проектами и GitHub-интеграцией.</div>
+    <div class="tagline">Профессиональная среда разработки для JavaScript</div>
+    <div class="desc">Редактор с подсветкой, мини-картой, коллаборацией, управлением проектами и AI-кодером (Groq/OpenAI/Qwen) с inline-подсказками и чатом.</div>
     <div class="landing-actions">
       <button class="btn-l btn-p" onclick="startIDE()">🚀 Начать работу</button>
       <button class="btn-l btn-s" onclick="Share.openStudioShareModal()">🔗 Поделиться</button>
     </div>
     <div class="features">
       <div class="feature"><div class="feat-icon">⚡</div><div class="feat-t">Мгновенный старт</div><div class="feat-d">Открыл браузер — и уже пишешь код.</div></div>
-      <div class="feature"><div class="feat-icon">👥</div><div class="feat-t">Коллаборация</div><div class="feat-d">Работайте над кодом вместе в реальном времени.</div></div>
-      <div class="feature"><div class="feat-icon">📁</div><div class="feat-t">Проекты</div><div class="feat-d">Управляйте множеством проектов легко.</div></div>
-      <div class="feature"><div class="feat-icon">👤</div><div class="feat-t">Аккаунт</div><div class="feat-d">Профиль, настройки, темы оформления.</div></div>
+      <div class="feature"><div class="feat-icon">🤖</div><div class="feat-t">AI Inline + Chat</div><div class="feat-d">Groq, OpenAI, Qwen — бесплатно.</div></div>
+      <div class="feature"><div class="feat-icon">👥</div><div class="feat-t">Коллаборация</div><div class="feat-d">Работайте над кодом вместе.</div></div>
+      <div class="feature"><div class="feat-icon">🎯</div><div class="feat-t">Умный редактор</div><div class="feat-d">Мини-карта, контекст, авто-скобки.</div></div>
     </div>
   </div>
 </div>
-
-<!-- ============ IDE ============ -->
 <div class="ide-root" id="ide-root">
   <header>
     <div style="display:flex;align-items:center">
@@ -297,6 +309,7 @@
         👥 Коллаборация
         <span class="notif-badge" id="collab-notif" style="display:none">0</span>
       </button>
+      <button class="ai" onclick="AI.toggleChat()">🤖 AI</button>
       <button class="gh" onclick="A.ghModal()">📤 GitHub</button>
       <button onclick="A.run()">▶ Запустить</button>
       <div style="position:relative">
@@ -315,6 +328,7 @@
           </div>
           <div class="profile-menu-item" onclick="Projects.open()">📁 Мои проекты</div>
           <div class="profile-menu-item" onclick="Collab.open()">👥 Коллаборация</div>
+          <div class="profile-menu-item" onclick="AI.openSettings()">🤖 Настройки AI</div>
           <div class="profile-menu-item" onclick="Profile.openSettings()">⚙️ Настройки</div>
           <div class="profile-menu-divider"></div>
           <div class="profile-menu-item danger" onclick="Auth.logout()">🚪 Выйти</div>
@@ -322,8 +336,7 @@
       </div>
     </div>
   </header>
-
-  <main>
+  <main id="main">
     <aside class="sidebar">
       <div class="side-tabs">
         <button class="active" data-tab="files">Файлы</button>
@@ -358,18 +371,27 @@
           <h4 style="margin-top:15px">⚙️ IDE</h4>
           <label><input type="checkbox" id="opt-as" checked onchange="S.options.autosave=this.checked;saveAll()"/> Автосохранение</label>
           <label><input type="checkbox" id="opt-lint" checked onchange="S.options.lint=this.checked;saveAll()"/> Проверка синтаксиса</label>
+          <label><input type="checkbox" id="opt-minimap" checked onchange="S.options.minimap=this.checked;toggleMinimap()"/> Мини-карта</label>
+          <label><input type="checkbox" id="opt-ai" checked onchange="S.options.aiEnabled=this.checked;saveAll()"/> AI Inline подсказки</label>
+          <button onclick="AI.openSettings()" style="margin-top:10px;background:var(--ai-accent);color:white;border:none">🤖 Настройки AI-кодера</button>
         </div>
       </div>
     </aside>
-
     <section class="editor">
-      <div class="ln" id="ln"></div>
-      <div class="ew">
-        <textarea id="ed" spellcheck="false" autocomplete="off"></textarea>
-        <pre id="hi"><code id="cd"></code></pre>
+      <div class="editor-main">
+        <div class="ln" id="ln"></div>
+        <div class="ew">
+          <div class="current-line" id="current-line"></div>
+          <textarea id="ed" spellcheck="false" autocomplete="off"></textarea>
+          <pre id="hi"><code id="cd"></code></pre>
+          <div class="ai-suggestion" id="ai-suggestion"></div>
+        </div>
+        <div class="minimap" id="minimap">
+          <div class="minimap-content" id="minimap-content"></div>
+          <div class="minimap-viewport" id="minimap-viewport"></div>
+        </div>
       </div>
     </section>
-
     <section class="bp">
       <div class="btabs">
         <button class="active" data-tab="con">Консоль</button>
@@ -380,66 +402,86 @@
       <div class="bc" id="btm-prv"><div id="prf"><iframe id="pvf" sandbox="allow-scripts allow-forms"></iframe></div></div>
       <div class="bc" id="btm-prb"><div id="prb"></div></div>
     </section>
+    <div class="ai-panel" id="ai-panel">
+      <div class="ai-header">
+        <h3>🤖 AI Coder</h3>
+        <div class="ai-header-actions">
+          <button onclick="AI.clearChat()" title="Очистить чат">🗑️</button>
+          <button onclick="AI.openSettings()" title="Настройки">⚙️</button>
+          <button onclick="AI.toggleChat()" title="Закрыть">✕</button>
+        </div>
+      </div>
+      <div class="ai-chat" id="ai-chat">
+        <div class="ai-welcome">
+          <div class="ai-welcome-icon">🤖</div>
+          <h4>AI-помощник готов к работе</h4>
+          <p>Задайте вопрос о коде, попросите написать функцию или объяснить концепцию.</p>
+          <div class="ai-suggestions">
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Напиши функцию сортировки массива объектов по полю')">✨ Напиши функцию сортировки</button>
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Объясни, как работает этот код')">📖 Объясни текущий код</button>
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Добавь обработку ошибок в этот код')">🛡️ Добавь обработку ошибок</button>
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Оптимизируй этот код для производительности')">⚡ Оптимизируй код</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-input-area">
+        <textarea id="ai-input" placeholder="Опишите задачу или задайте вопрос..." rows="1"></textarea>
+        <button class="ai-send" id="ai-send" onclick="AI.sendChat()">➤</button>
+      </div>
+    </div>
   </main>
-
   <div class="stb">
-    <div class="l"><span>Javier</span><span id="s-file">main.js</span><span id="s-cur">Строка 1, Столбец 1</span></div>
-    <div class="r"><span id="s-saved">✓ Сохранено</span><span id="s-user">—</span></div>
+    <div class="l">
+      <span class="stb-item">⚡ Javier</span>
+      <span class="stb-item" id="s-file">main.js</span>
+      <span class="stb-item" id="s-cur">Строка 1, Столбец 1</span>
+    </div>
+    <div class="r">
+      <span class="stb-item" id="s-saved">✓ Сохранено</span>
+      <span class="stb-item" id="s-lines">0 строк</span>
+      <span class="stb-item" id="s-ai-status">🤖 AI: выкл</span>
+      <span class="stb-item" id="s-user">—</span>
+    </div>
   </div>
 </div>
-
-<!-- ============ COLLAB STATUS ============ -->
 <div class="collab-status" id="collab-status">
   <span class="dot"></span>
   <span id="collab-status-text">Коллаборация активна</span>
 </div>
-
 <div class="mo" id="mo"><div class="md" id="mc"></div></div>
 <iframe id="sbx" sandbox="allow-scripts" style="display:none"></iframe>
-
 <script>
 const $ = id => document.getElementById(id);
 const S = {
   files: {}, active: 'main.js', bp: {},
-  options: { autosave: true, lint: true },
+  options: { autosave: true, lint: true, minimap: true, aiEnabled: true },
   ghToken: null, currentProjectId: null,
-  collabSession: null // { projectId, users: [{email, name, avatar}] }
+  collabSession: null, undoStack: [], redoStack: [], lastValue: ''
 };
 const E = {
-  ed: $('ed'), cd: $('cd'), hi: $('hi'), ln: $('ln'),
-  ftree: $('ftree'), con: $('con'), sbx: $('sbx'),
-  mo: $('mo'), mc: $('mc'),
-  si: $('s-i'), sr: $('s-r'), sres: $('s-res'),
-  pvf: $('pvf'), prb: $('prb'), stats: $('stats'),
-  ghtok: $('gh-tok'),
-  sfile: $('s-file'), scur: $('s-cur'), ssaved: $('s-saved'), suser: $('s-user'),
-  landing: $('landing'), ide: $('ide-root'),
-  authScreen: $('auth-screen'),
-  hdrAvatar: $('hdr-avatar'), hdrName: $('hdr-name'),
+  ed: $('ed'), cd: $('cd'), hi: $('hi'), ln: $('ln'), ftree: $('ftree'), con: $('con'), sbx: $('sbx'),
+  mo: $('mo'), mc: $('mc'), si: $('s-i'), sr: $('s-r'), sres: $('s-res'),
+  pvf: $('pvf'), prb: $('prb'), stats: $('stats'), ghtok: $('gh-tok'),
+  sfile: $('s-file'), scur: $('s-cur'), ssaved: $('s-saved'), suser: $('s-user'), slines: $('s-lines'),
+  landing: $('landing'), ide: $('ide-root'), main: $('main'),
+  authScreen: $('auth-screen'), hdrAvatar: $('hdr-avatar'), hdrName: $('hdr-name'),
   menuAvatar: $('menu-avatar'), menuName: $('menu-name'), menuEmail: $('menu-email'),
-  profileMenu: $('profile-menu'),
-  welcomeUser: $('welcome-user'),
-  collabStatus: $('collab-status'),
-  collabStatusText: $('collab-status-text'),
-  collabNotif: $('collab-notif')
+  profileMenu: $('profile-menu'), welcomeUser: $('welcome-user'),
+  collabStatus: $('collab-status'), collabStatusText: $('collab-status-text'), collabNotif: $('collab-notif'),
+  currentLine: $('current-line'), minimap: $('minimap'), minimapContent: $('minimap-content'), minimapViewport: $('minimap-viewport'),
+  aiSuggestion: $('ai-suggestion'), aiPanel: $('ai-panel'), aiChat: $('ai-chat'), aiInput: $('ai-input'), aiSend: $('ai-send')
 };
-
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const toast = (msg, type='info', dur=3000) => {
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), dur);
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), dur);
 };
 const openMo = html => { E.mc.innerHTML = html; E.mo.classList.add('open'); };
 const closeMo = () => E.mo.classList.remove('open');
 E.mo.addEventListener('click', e => { if (e.target === E.mo) closeMo(); });
 
-// ============ AUTH ============
 const Auth = {
-  USERS_KEY: 'javier_users_v1',
-  SESSION_KEY: 'javier_session_v1',
+  USERS_KEY: 'javier_users_v1', SESSION_KEY: 'javier_session_v1',
   getUsers() { try { return JSON.parse(localStorage.getItem(this.USERS_KEY) || '{}'); } catch { return {}; } },
   saveUsers(u) { localStorage.setItem(this.USERS_KEY, JSON.stringify(u)); },
   getSession() { try { return JSON.parse(localStorage.getItem(this.SESSION_KEY) || 'null'); } catch { return null; } },
@@ -449,19 +491,15 @@ const Auth = {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
   },
   randomSalt() {
-    const arr = new Uint8Array(16);
-    crypto.getRandomValues(arr);
+    const arr = new Uint8Array(16); crypto.getRandomValues(arr);
     return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
   },
   showMsg(msg, type='error') { const el = $('auth-msg'); el.textContent = msg; el.className = 'auth-msg show ' + type; },
   hideMsg() { $('auth-msg').className = 'auth-msg'; },
   async register(e) {
-    e.preventDefault();
-    this.hideMsg();
-    const name = $('reg-name').value.trim();
-    const email = $('reg-email').value.trim().toLowerCase();
-    const pw = $('reg-password').value;
-    const pw2 = $('reg-password2').value;
+    e.preventDefault(); this.hideMsg();
+    const name = $('reg-name').value.trim(), email = $('reg-email').value.trim().toLowerCase();
+    const pw = $('reg-password').value, pw2 = $('reg-password2').value;
     if (name.length < 2) return this.showMsg('Имя слишком короткое');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.showMsg('Некорректный email');
     if (pw.length < 6) return this.showMsg('Пароль минимум 6 символов');
@@ -469,768 +507,644 @@ const Auth = {
     const users = this.getUsers();
     if (users[email]) return this.showMsg('Email уже зарегистрирован');
     const salt = this.randomSalt();
-    const hash = await this.hashPassword(pw, salt);
-    users[email] = {
-      id: 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
-      email, name, passwordHash: hash, salt,
-      avatar: '👨‍💻', theme: 'dark', bio: '',
-      createdAt: Date.now(), lastLogin: Date.now()
-    };
-    this.saveUsers(users);
-    this.setSession({ email, loginAt: Date.now() });
-    this.showMsg('✓ Аккаунт создан!', 'success');
-    setTimeout(() => this.enterApp(), 800);
+    users[email] = { id: 'u_' + Date.now(), email, name, passwordHash: await this.hashPassword(pw, salt), salt, avatar: '👨‍💻', theme: 'dark', bio: '', createdAt: Date.now(), lastLogin: Date.now() };
+    this.saveUsers(users); this.setSession({ email, loginAt: Date.now() });
+    this.showMsg('✓ Аккаунт создан!', 'success'); setTimeout(() => this.enterApp(), 800);
   },
   async login(e) {
-    e.preventDefault();
-    this.hideMsg();
-    const email = $('login-email').value.trim().toLowerCase();
-    const pw = $('login-password').value;
-    const users = this.getUsers();
-    const user = users[email];
+    e.preventDefault(); this.hideMsg();
+    const email = $('login-email').value.trim().toLowerCase(), pw = $('login-password').value;
+    const users = this.getUsers(), user = users[email];
     if (!user) return this.showMsg('Пользователь не найден');
-    const hash = await this.hashPassword(pw, user.salt);
-    if (hash !== user.passwordHash) return this.showMsg('Неверный пароль');
-    user.lastLogin = Date.now();
-    this.saveUsers(users);
-    this.setSession({ email, loginAt: Date.now() });
-    this.showMsg('✓ Вход выполнен', 'success');
-    setTimeout(() => this.enterApp(), 400);
+    if (await this.hashPassword(pw, user.salt) !== user.passwordHash) return this.showMsg('Неверный пароль');
+    user.lastLogin = Date.now(); this.saveUsers(users); this.setSession({ email, loginAt: Date.now() });
+    this.showMsg('✓ Вход выполнен', 'success'); setTimeout(() => this.enterApp(), 400);
   },
-  asGuest() {
-    this.setSession({ email: '__guest__', isGuest: true, loginAt: Date.now() });
-    this.enterApp();
-  },
-  logout() {
-    if (!confirm('Выйти из аккаунта?')) return;
-    this.setSession(null);
-    E.profileMenu.classList.remove('open');
-    E.ide.classList.remove('visible');
-    E.landing.classList.add('hidden');
-    E.authScreen.classList.remove('hidden');
-    toast('Вы вышли', 'success', 2000);
-  },
-  enterApp() {
-    E.authScreen.classList.add('hidden');
-    setTimeout(() => { E.landing.classList.remove('hidden'); Profile.refreshUI(); }, 400);
-  },
+  asGuest() { this.setSession({ email: '__guest__', isGuest: true, loginAt: Date.now() }); this.enterApp(); },
+  logout() { if (!confirm('Выйти из аккаунта?')) return; this.setSession(null); E.profileMenu.classList.remove('open'); E.ide.classList.remove('visible'); E.landing.classList.add('hidden'); E.authScreen.classList.remove('hidden'); toast('Вы вышли', 'success', 2000); },
+  enterApp() { E.authScreen.classList.add('hidden'); setTimeout(() => { E.landing.classList.remove('hidden'); Profile.refreshUI(); }, 400); },
   getCurrentUser() {
-    const session = this.getSession();
-    if (!session) return null;
-    if (session.isGuest) {
-      return { email: '__guest__', name: 'Гость', avatar: '👻', theme: localStorage.getItem('javier_guest_theme') || 'dark', isGuest: true };
-    }
+    const session = this.getSession(); if (!session) return null;
+    if (session.isGuest) return { email: '__guest__', name: 'Гость', avatar: '👻', theme: localStorage.getItem('javier_guest_theme') || 'dark', isGuest: true };
     return this.getUsers()[session.email] || null;
   },
   updateUser(updates) {
-    const session = this.getSession();
-    if (!session || session.isGuest) {
-      if (updates.theme) localStorage.setItem('javier_guest_theme', updates.theme);
-      return;
-    }
-    const users = this.getUsers();
-    if (users[session.email]) {
-      Object.assign(users[session.email], updates);
-      this.saveUsers(users);
-      Profile.refreshUI();
-    }
+    const session = this.getSession(); if (!session) return;
+    if (session.isGuest) { if (updates.theme) localStorage.setItem('javier_guest_theme', updates.theme); return; }
+    const users = this.getUsers(); if (users[session.email]) { Object.assign(users[session.email], updates); this.saveUsers(users); Profile.refreshUI(); }
   }
 };
 
-// ============ PROJECTS ============
 const Projects = {
-  getStorageKey() {
-    const user = Auth.getCurrentUser();
-    if (!user) return null;
-    return user.isGuest ? 'javier_projects_guest' : 'javier_projects_' + user.email;
-  },
-  load() {
-    const key = this.getStorageKey();
-    if (!key) return { projects: {}, activeId: null };
-    try {
-      const data = JSON.parse(localStorage.getItem(key) || '{}');
-      return { projects: data.projects || {}, activeId: data.activeId || null };
-    } catch { return { projects: {}, activeId: null }; }
-  },
-  save(projectsData) {
-    const key = this.getStorageKey();
-    if (!key) return;
-    localStorage.setItem(key, JSON.stringify(projectsData));
-  },
+  getStorageKey() { const user = Auth.getCurrentUser(); if (!user) return null; return user.isGuest ? 'javier_projects_guest' : 'javier_projects_' + user.email; },
+  load() { const key = this.getStorageKey(); if (!key) return { projects: {}, activeId: null }; try { const data = JSON.parse(localStorage.getItem(key) || '{}'); return { projects: data.projects || {}, activeId: data.activeId || null }; } catch { return { projects: {}, activeId: null }; } },
+  save(projectsData) { const key = this.getStorageKey(); if (!key) return; localStorage.setItem(key, JSON.stringify(projectsData)); },
   create(name, files = null, isCollab = false, collaborators = []) {
-    const data = this.load();
-    const id = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
-    const now = Date.now();
-    const project = {
-      id, name: name || 'Новый проект',
-      createdAt: now, updatedAt: now,
-      files: files || {
-        'main.js': '// Новый проект\nconsole.log("Hello from Javier!");',
-        'index.html': '<!DOCTYPE html>\n<html>\n<head><title>Preview</title></head>\n<body>\n  <h1>Hello!</h1>\n</body>\n</html>'
-      },
-      activeFile: 'main.js', breakpoints: {},
-      options: { autosave: true, lint: true },
-      isCollab, collaborators
-    };
-    data.projects[id] = project;
-    data.activeId = id;
-    this.save(data);
-    return id;
+    const data = this.load(), id = 'p_' + Date.now(), now = Date.now();
+    const project = { id, name: name || 'Новый проект', createdAt: now, updatedAt: now, files: files || { 'main.js': '// Новый проект\nconsole.log("Hello!");' }, activeFile: 'main.js', breakpoints: {}, options: { autosave: true, lint: true, minimap: true, aiEnabled: true }, isCollab, collaborators };
+    data.projects[id] = project; data.activeId = id; this.save(data); return id;
   },
-  switchTo(id) {
-    const data = this.load();
-    if (!data.projects[id]) return false;
-    this.saveCurrentProject();
-    data.activeId = id;
-    this.save(data);
-    this.loadProject(id);
-    return true;
-  },
+  switchTo(id) { const data = this.load(); if (!data.projects[id]) return false; this.saveCurrentProject(); data.activeId = id; this.save(data); this.loadProject(id); return true; },
   saveCurrentProject() {
-    if (!S.currentProjectId) return;
-    const data = this.load();
-    if (!data.projects[S.currentProjectId]) return;
+    if (!S.currentProjectId) return; const data = this.load(); if (!data.projects[S.currentProjectId]) return;
     S.files[S.active] = E.ed.value;
-    data.projects[S.currentProjectId].files = { ...S.files };
-    data.projects[S.currentProjectId].activeFile = S.active;
+    data.projects[S.currentProjectId].files = { ...S.files }; data.projects[S.currentProjectId].activeFile = S.active;
     data.projects[S.currentProjectId].breakpoints = Array.from(Object.entries(S.bp)).map(([k,v]) => [k, Array.from(v)]);
-    data.projects[S.currentProjectId].options = { ...S.options };
-    data.projects[S.currentProjectId].updatedAt = Date.now();
-    this.save(data);
+    data.projects[S.currentProjectId].options = { ...S.options }; data.projects[S.currentProjectId].updatedAt = Date.now(); this.save(data);
   },
   loadProject(id) {
-    const data = this.load();
-    const project = data.projects[id];
-    if (!project) return false;
-    S.currentProjectId = id;
-    S.files = { ...project.files };
-    S.active = project.activeFile || Object.keys(S.files)[0] || 'main.js';
-    S.bp = {};
-    (project.breakpoints || []).forEach(([k,v]) => S.bp[k] = new Set(v));
-    S.options = project.options || { autosave: true, lint: true };
-    $('opt-as').checked = S.options.autosave;
-    $('opt-lint').checked = S.options.lint;
-    renderTree();
-    loadFile(S.active);
-    // Check if collab project
-    if (project.isCollab) {
-      Collab.joinSession(id, project.collaborators || []);
-    } else {
-      Collab.leaveSession();
-    }
-    return true;
+    const data = this.load(), project = data.projects[id]; if (!project) return false;
+    S.currentProjectId = id; S.files = { ...project.files }; S.active = project.activeFile || Object.keys(S.files)[0] || 'main.js';
+    S.bp = {}; (project.breakpoints || []).forEach(([k,v]) => S.bp[k] = new Set(v));
+    S.options = project.options || { autosave: true, lint: true, minimap: true, aiEnabled: true };
+    $('opt-as').checked = S.options.autosave; $('opt-lint').checked = S.options.lint; $('opt-minimap').checked = S.options.minimap; $('opt-ai').checked = S.options.aiEnabled;
+    renderTree(); loadFile(S.active); if (project.isCollab) Collab.joinSession(id, project.collaborators || []); else Collab.leaveSession(); return true;
   },
   open() {
-    const data = this.load();
-    const projects = Object.values(data.projects).sort((a,b) => b.updatedAt - a.updatedAt);
+    const data = this.load(); const projects = Object.values(data.projects).sort((a,b) => b.updatedAt - a.updatedAt);
     const activeId = data.activeId;
-    const cardsHtml = projects.length === 0
-      ? `<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📁</div><div>Нет проектов</div></div>`
-      : projects.map(p => {
-          const filesCount = Object.keys(p.files).length;
-          const linesCount = Object.values(p.files).reduce((s,c) => s + c.split('\n').length, 0);
-          const date = new Date(p.updatedAt).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
-          return `
-            <div class="project-card ${p.id === activeId ? 'active' : ''} ${p.isCollab ? 'collab' : ''}" data-id="${p.id}">
-              <div class="project-card-actions">
-                <button class="project-card-action" onclick="event.stopPropagation();Projects.delete('${p.id}')" title="Удалить">🗑️</button>
-              </div>
-              <div class="project-card-icon">📦</div>
-              <div class="project-card-name">${esc(p.name)}</div>
-              <div class="project-card-meta">
-                <span>📄 ${filesCount}</span>
-                <span>📝 ${linesCount}</span>
-                <span>🕒 ${date}</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-    openMo(`
-      <h3>📁 Мои проекты</h3>
-      <div class="projects-grid">${cardsHtml}</div>
-      <div class="ma">
-        <button class="sec" onclick="Projects.createPrompt()">+ Новый</button>
-        <button class="pri" onclick="closeMo()">Закрыть</button>
-      </div>
-    `);
-    document.querySelectorAll('.project-card').forEach(card => {
-      card.onclick = () => {
-        if (Projects.switchTo(card.dataset.id)) {
-          toast('Проект переключён', 'success', 1500);
-          closeMo();
-        }
-      };
-    });
+    const cardsHtml = projects.length === 0 ? `<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📁</div><div>Нет проектов</div></div>` : projects.map(p => `<div class="project-card ${p.id === activeId ? 'active' : ''} ${p.isCollab ? 'collab' : ''}" data-id="${p.id}"><div class="project-card-actions"><button class="project-card-action" onclick="event.stopPropagation();Projects.delete('${p.id}')">🗑️</button></div><div class="project-card-icon">📦</div><div class="project-card-name">${esc(p.name)}</div><div class="project-card-meta"><span>📄 ${Object.keys(p.files).length}</span><span>🕒 ${new Date(p.updatedAt).toLocaleDateString('ru')}</span></div></div>`).join('');
+    openMo(`<h3>📁 Мои проекты</h3><div class="projects-grid">${cardsHtml}</div><div class="ma"><button class="sec" onclick="Projects.createPrompt()">+ Новый</button><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
+    document.querySelectorAll('.project-card').forEach(card => card.onclick = () => { if (Projects.switchTo(card.dataset.id)) { toast('Проект переключён', 'success', 1500); closeMo(); } });
   },
-  createPrompt() {
-    openMo(`
-      <h3>✨ Новый проект</h3>
-      <label>Название:</label>
-      <input type="text" id="new-proj-name" placeholder="Мой проект" autofocus/>
-      <div class="ma">
-        <button class="sec" onclick="Projects.open()">Отмена</button>
-        <button class="pri" onclick="Projects.doCreate()">Создать</button>
-      </div>
-    `);
-    setTimeout(() => $('new-proj-name').focus(), 100);
-  },
-  doCreate() {
-    const name = $('new-proj-name').value.trim() || 'Новый проект';
-    const id = Projects.create(name);
-    Projects.switchTo(id);
-    toast(`Проект "${name}" создан`, 'success');
-    closeMo();
-  },
-  delete(id) {
-    const data = this.load();
-    if (!data.projects[id]) return;
-    if (!confirm(`Удалить "${data.projects[id].name}"?`)) return;
-    delete data.projects[id];
-    if (data.activeId === id) {
-      const ids = Object.keys(data.projects);
-      data.activeId = ids.length > 0 ? ids[0] : null;
-    }
-    this.save(data);
-    if (S.currentProjectId === id) {
-      if (data.activeId) Projects.loadProject(data.activeId);
-      else { const newId = Projects.create(); Projects.loadProject(newId); }
-    }
-    toast('Проект удалён', 'success');
-    Projects.open();
-  }
+  createPrompt() { openMo(`<h3>✨ Новый проект</h3><label>Название:</label><input type="text" id="new-proj-name" placeholder="Мой проект" autofocus/><div class="ma"><button class="sec" onclick="Projects.open()">Отмена</button><button class="pri" onclick="Projects.doCreate()">Создать</button></div>`); setTimeout(() => $('new-proj-name').focus(), 100); },
+  doCreate() { const name = $('new-proj-name').value.trim() || 'Новый проект'; const id = Projects.create(name); Projects.switchTo(id); toast(`Проект "${name}" создан`, 'success'); closeMo(); },
+  delete(id) { const data = this.load(); if (!data.projects[id]) return; if (!confirm(`Удалить "${data.projects[id].name}"?`)) return; delete data.projects[id]; if (data.activeId === id) { const ids = Object.keys(data.projects); data.activeId = ids.length > 0 ? ids[0] : null; } this.save(data); if (S.currentProjectId === id) { if (data.activeId) Projects.loadProject(data.activeId); else { const newId = Projects.create(); Projects.loadProject(newId); } } toast('Проект удалён', 'success'); Projects.open(); }
 };
 
-// ============ COLLABORATION ============
 const Collab = {
-  INVITES_KEY: 'javier_invites_v1',
-  channel: null,
-
-  getInvites() {
-    try { return JSON.parse(localStorage.getItem(this.INVITES_KEY) || '{}'); }
-    catch { return {}; }
-  },
-  saveInvites(invites) {
-    localStorage.setItem(this.INVITES_KEY, JSON.stringify(invites));
-  },
-
+  INVITES_KEY: 'javier_invites_v1', channel: null, remoteCursors: {},
+  getInvites() { try { return JSON.parse(localStorage.getItem(this.INVITES_KEY) || '{}'); } catch { return {}; } },
+  saveInvites(i) { localStorage.setItem(this.INVITES_KEY, JSON.stringify(i)); },
   open() {
-    E.profileMenu.classList.remove('open');
-    const user = Auth.getCurrentUser();
-    if (!user || user.isGuest) {
-      toast('Коллаборация доступна только зарегистрированным пользователям', 'error');
-      return;
-    }
-
-    const invites = this.getInvites();
-    const incoming = invites[user.email] || [];
-    const outgoing = [];
-    Object.entries(invites).forEach(([email, invs]) => {
-      invs.forEach(inv => {
-        if (inv.from === user.email) outgoing.push({ ...inv, to: email });
-      });
-    });
-
-    const incomingHtml = incoming.length === 0
-      ? '<div class="collab-empty"><div class="collab-empty-icon">📭</div><div>Нет входящих заявок</div></div>'
-      : incoming.map((inv, i) => `
-        <div class="collab-invite">
-          <div class="collab-invite-header">
-            <div class="collab-invite-from">
-              <span class="avatar">${inv.fromAvatar || '👤'}</span>
-              <span>${esc(inv.fromName)}</span>
-            </div>
-            <div class="collab-invite-time">${new Date(inv.timestamp).toLocaleString('ru')}</div>
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
-            Приглашает в проект: <strong style="color:var(--text)">${esc(inv.projectName)}</strong>
-          </div>
-          <div class="collab-invite-actions">
-            <button class="accept" onclick="Collab.acceptInvite(${i})">✓ Принять</button>
-            <button class="decline" onclick="Collab.declineInvite(${i})">✗ Отклонить</button>
-          </div>
-        </div>
-      `).join('');
-
-    const outgoingHtml = outgoing.length === 0
-      ? '<div style="color:var(--muted);font-size:12px;padding:10px">Нет отправленных заявок</div>'
-      : outgoing.map(inv => `
-        <div style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:12px">
-          <div style="font-weight:500">${esc(inv.to)}</div>
-          <div style="color:var(--muted);font-size:11px">Проект: ${esc(inv.projectName)} • ${inv.status === 'accepted' ? '✓ Принято' : '⏳ Ожидание'}</div>
-        </div>
-      `).join('');
-
-    openMo(`
-      <h3>👥 Коллаборация</h3>
-      <div style="margin-bottom:20px">
-        <h4 style="margin-bottom:10px;font-size:13px">📩 Пригласить пользователя</h4>
-        <label>Email пользователя:</label>
-        <input type="email" id="collab-email" placeholder="user@example.com"/>
-        <div class="ma">
-          <button class="collab" onclick="Collab.sendInvite()">📨 Отправить заявку</button>
-        </div>
-      </div>
-
-      <h4 style="margin-bottom:10px;font-size:13px">📥 Входящие заявки (${incoming.length})</h4>
-      ${incomingHtml}
-
-      <h4 style="margin:20px 0 10px;font-size:13px">📤 Отправленные заявки (${outgoing.length})</h4>
-      ${outgoingHtml}
-
-      ${S.collabSession ? `
-        <div style="margin-top:20px;padding:12px;background:rgba(147,51,234,.1);border:1px solid var(--collab);border-radius:8px">
-          <div style="font-weight:600;margin-bottom:8px">🟢 Активная сессия</div>
-          <div class="collab-users">
-            ${S.collabSession.users.map(u => `
-              <div class="collab-user">
-                <span class="avatar">${u.avatar}</span>
-                <span class="name">${esc(u.name)}</span>
-                <span class="status">онлайн</span>
-              </div>
-            `).join('')}
-          </div>
-          <button class="danger" onclick="Collab.leaveSession()" style="margin-top:10px;background:var(--err);color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px">Выйти из сессии</button>
-        </div>
-      ` : ''}
-
-      <div class="ma">
-        <button class="pri" onclick="closeMo()">Закрыть</button>
-      </div>
-    `);
+    E.profileMenu.classList.remove('open'); const user = Auth.getCurrentUser();
+    if (!user || user.isGuest) return toast('Коллаборация доступна только зарегистрированным пользователям', 'error');
+    const invites = this.getInvites(), incoming = invites[user.email] || [], outgoing = [];
+    Object.entries(invites).forEach(([email, invs]) => invs.forEach(inv => { if (inv.from === user.email) outgoing.push({ ...inv, to: email }); }));
+    const incHtml = incoming.length === 0 ? '<div class="collab-empty"><div class="collab-empty-icon">📭</div><div>Нет входящих заявок</div></div>' : incoming.map((inv, i) => `<div class="collab-invite"><div class="collab-invite-header"><div class="collab-invite-from"><span class="avatar">${inv.fromAvatar || '👤'}</span><span>${esc(inv.fromName)}</span></div><div class="collab-invite-time">${new Date(inv.timestamp).toLocaleString('ru')}</div></div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Приглашает в: <strong>${esc(inv.projectName)}</strong></div><div class="collab-invite-actions"><button class="accept" onclick="Collab.acceptInvite(${i})">✓ Принять</button><button class="decline" onclick="Collab.declineInvite(${i})">✗ Отклонить</button></div></div>`).join('');
+    const outHtml = outgoing.length === 0 ? '<div style="color:var(--muted);font-size:12px;padding:10px">Нет отправленных заявок</div>' : outgoing.map(inv => `<div style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:12px"><div style="font-weight:500">${esc(inv.to)}</div><div style="color:var(--muted);font-size:11px">Проект: ${esc(inv.projectName)} • ${inv.status === 'accepted' ? '✓ Принято' : '⏳ Ожидание'}</div></div>`).join('');
+    openMo(`<h3>👥 Коллаборация</h3><div style="margin-bottom:20px"><h4 style="margin-bottom:10px;font-size:13px">📩 Пригласить</h4><label>Email:</label><input type="email" id="collab-email" placeholder="user@example.com"/><div class="ma"><button class="collab" onclick="Collab.sendInvite()">📨 Отправить</button></div></div><h4 style="margin-bottom:10px;font-size:13px">📥 Входящие (${incoming.length})</h4>${incHtml}<h4 style="margin:20px 0 10px;font-size:13px">📤 Отправленные (${outgoing.length})</h4>${outHtml}${S.collabSession ? `<div style="margin-top:20px;padding:12px;background:rgba(147,51,234,.1);border:1px solid var(--collab);border-radius:8px"><div style="font-weight:600;margin-bottom:8px">🟢 Активная сессия</div><div class="collab-users">${S.collabSession.users.map(u => `<div class="collab-user"><span class="avatar">${u.avatar}</span><span class="name">${esc(u.name)}</span><span class="status">онлайн</span></div>`).join('')}</div><button class="danger" onclick="Collab.leaveSession()" style="margin-top:10px;background:var(--err);color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px">Выйти</button></div>` : ''}<div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
   },
-
   sendInvite() {
-    const email = $('collab-email').value.trim().toLowerCase();
-    if (!email) return toast('Введите email', 'error');
-
-    const user = Auth.getCurrentUser();
-    const users = Auth.getUsers();
-    if (!users[email]) return toast('Пользователь не найден', 'error');
+    const email = $('collab-email').value.trim().toLowerCase(); if (!email) return toast('Введите email', 'error');
+    const user = Auth.getCurrentUser(), users = Auth.getUsers(); if (!users[email]) return toast('Пользователь не найден', 'error');
     if (email === user.email) return toast('Нельзя пригласить себя', 'error');
-
-    const data = Projects.load();
-    const project = data.projects[S.currentProjectId];
-    if (!project) return toast('Нет активного проекта', 'error');
-
-    const invites = this.getInvites();
-    if (!invites[email]) invites[email] = [];
-
-    // Check if already invited
-    if (invites[email].some(inv => inv.from === user.email && inv.projectId === S.currentProjectId)) {
-      return toast('Заявка уже отправлена', 'error');
-    }
-
-    invites[email].push({
-      from: user.email,
-      fromName: user.name,
-      fromAvatar: user.avatar,
-      projectId: S.currentProjectId,
-      projectName: project.name,
-      timestamp: Date.now(),
-      status: 'pending'
-    });
-
-    this.saveInvites(invites);
-    toast(`Заявка отправлена ${users[email].name}`, 'success');
-    this.open(); // Refresh
+    const data = Projects.load(), project = data.projects[S.currentProjectId]; if (!project) return toast('Нет активного проекта', 'error');
+    const invites = this.getInvites(); if (!invites[email]) invites[email] = [];
+    if (invites[email].some(inv => inv.from === user.email && inv.projectId === S.currentProjectId)) return toast('Заявка уже отправлена', 'error');
+    invites[email].push({ from: user.email, fromName: user.name, fromAvatar: user.avatar, projectId: S.currentProjectId, projectName: project.name, timestamp: Date.now(), status: 'pending' });
+    this.saveInvites(invites); toast(`Заявка отправлена ${users[email].name}`, 'success'); this.open();
   },
-
   acceptInvite(index) {
-    const user = Auth.getCurrentUser();
-    const invites = this.getInvites();
-    const incoming = invites[user.email];
-    if (!incoming || !incoming[index]) return;
-
-    const inv = incoming[index];
-    inv.status = 'accepted';
-
-    // Add user to project collaborators
+    const user = Auth.getCurrentUser(), invites = this.getInvites(), incoming = invites[user.email]; if (!incoming || !incoming[index]) return;
+    const inv = incoming[index]; inv.status = 'accepted';
     const ownerData = JSON.parse(localStorage.getItem('javier_projects_' + inv.from) || '{}');
     if (ownerData.projects && ownerData.projects[inv.projectId]) {
-      const project = ownerData.projects[inv.projectId];
-      if (!project.collaborators) project.collaborators = [];
-      if (!project.collaborators.some(c => c.email === user.email)) {
-        project.collaborators.push({
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar
-        });
-        project.isCollab = true;
-        localStorage.setItem('javier_projects_' + inv.from, JSON.stringify(ownerData));
-      }
+      const p = ownerData.projects[inv.projectId]; if (!p.collaborators) p.collaborators = [];
+      if (!p.collaborators.some(c => c.email === user.email)) { p.collaborators.push({ email: user.email, name: user.name, avatar: user.avatar }); p.isCollab = true; localStorage.setItem('javier_projects_' + inv.from, JSON.stringify(ownerData)); }
     }
-
-    this.saveInvites(invites);
-    toast('Заявка принята! Проект добавлен в ваши проекты', 'success');
-    this.open();
+    this.saveInvites(invites); toast('Заявка принята!', 'success'); this.open();
   },
-
-  declineInvite(index) {
-    const user = Auth.getCurrentUser();
-    const invites = this.getInvites();
-    const incoming = invites[user.email];
-    if (!incoming || !incoming[index]) return;
-    incoming.splice(index, 1);
-    this.saveInvites(invites);
-    toast('Заявка отклонена', 'success');
-    this.open();
-  },
-
+  declineInvite(index) { const user = Auth.getCurrentUser(), invites = this.getInvites(); if (!invites[user.email]) return; invites[user.email].splice(index, 1); this.saveInvites(invites); toast('Заявка отклонена', 'success'); this.open(); },
   joinSession(projectId, collaborators) {
-    const user = Auth.getCurrentUser();
-    if (!user || user.isGuest) return;
-
-    S.collabSession = {
-      projectId,
-      users: collaborators.filter(c => c.email !== user.email)
-    };
-
-    // Setup BroadcastChannel for real-time sync
+    const user = Auth.getCurrentUser(); if (!user || user.isGuest) return;
+    S.collabSession = { projectId, users: collaborators.filter(c => c.email !== user.email) };
     if (this.channel) this.channel.close();
     this.channel = new BroadcastChannel('javier_collab_' + projectId);
     this.channel.onmessage = (e) => {
-      if (e.data.type === 'update' && e.data.from !== user.email) {
-        // Apply remote changes
-        S.files = e.data.files;
-        S.active = e.data.activeFile;
-        renderTree();
-        loadFile(S.active);
-        toast(`${e.data.userName} внёс изменения`, 'collab', 2000);
-      }
+      if (e.data.from === user.email) return;
+      if (e.data.type === 'update') { S.files = e.data.files; S.active = e.data.activeFile; renderTree(); loadFile(S.active); toast(`${e.data.userName} внёс изменения`, 'collab', 2000); }
+      else if (e.data.type === 'cursor') this.updateRemoteCursor(e.data.from, e.data.userName, e.data.userAvatar, e.data.line, e.data.col);
+      else if (e.data.type === 'leave') this.removeRemoteCursor(e.data.from);
     };
-
-    // Show status
-    E.collabStatus.classList.add('active');
-    E.collabStatusText.textContent = `Коллаборация: ${S.collabSession.users.length} участников`;
-
-    toast('Вы присоединились к коллаборации', 'collab');
+    E.collabStatus.classList.add('active'); E.collabStatusText.textContent = `Коллаборация: ${S.collabSession.users.length} участников`; toast('Присоединились к коллаборации', 'collab');
   },
-
-  leaveSession() {
-    if (this.channel) {
-      this.channel.close();
-      this.channel = null;
-    }
-    S.collabSession = null;
-    E.collabStatus.classList.remove('active');
-    toast('Вы вышли из сессии коллаборации', 'info');
-  },
-
-  broadcastUpdate() {
-    if (!this.channel || !S.collabSession) return;
-    const user = Auth.getCurrentUser();
-    this.channel.postMessage({
-      type: 'update',
-      from: user.email,
-      userName: user.name,
-      files: S.files,
-      activeFile: S.active,
-      timestamp: Date.now()
-    });
-  },
-
-  checkNotifications() {
-    const user = Auth.getCurrentUser();
-    if (!user || user.isGuest) return;
-    const invites = this.getInvites();
-    const incoming = invites[user.email] || [];
-    const pending = incoming.filter(inv => inv.status === 'pending').length;
-    if (pending > 0) {
-      E.collabNotif.style.display = 'flex';
-      E.collabNotif.textContent = pending;
-    } else {
-      E.collabNotif.style.display = 'none';
-    }
-  }
+  leaveSession() { if (this.channel) { const user = Auth.getCurrentUser(); this.channel.postMessage({ type: 'leave', from: user.email }); this.channel.close(); this.channel = null; } S.collabSession = null; this.remoteCursors = {}; document.querySelectorAll('.collab-cursor').forEach(el => el.remove()); E.collabStatus.classList.remove('active'); toast('Вы вышли из сессии', 'info'); },
+  broadcastUpdate() { if (!this.channel || !S.collabSession) return; const user = Auth.getCurrentUser(); this.channel.postMessage({ type: 'update', from: user.email, userName: user.name, files: S.files, activeFile: S.active, timestamp: Date.now() }); },
+  broadcastCursor(line, col) { if (!this.channel || !S.collabSession) return; const user = Auth.getCurrentUser(); this.channel.postMessage({ type: 'cursor', from: user.email, userName: user.name, userAvatar: user.avatar, line, col, timestamp: Date.now() }); },
+  updateRemoteCursor(email, name, avatar, line, col) { let cursor = this.remoteCursors[email]; if (!cursor) { cursor = document.createElement('div'); cursor.className = 'collab-cursor'; cursor.style.background = 'var(--cursor-other)'; cursor.innerHTML = `<div class="collab-cursor-label">${avatar} ${name}</div>`; document.querySelector('.ew').appendChild(cursor); this.remoteCursors[email] = cursor; } const lh = 21; cursor.style.top = (10 + (line - 1) * lh) + 'px'; cursor.style.left = (10 + (col - 1) * 8.4) + 'px'; },
+  removeRemoteCursor(email) { if (this.remoteCursors[email]) { this.remoteCursors[email].remove(); delete this.remoteCursors[email]; } },
+  checkNotifications() { const user = Auth.getCurrentUser(); if (!user || user.isGuest) return; const invites = this.getInvites(), incoming = invites[user.email] || []; const pending = incoming.filter(inv => inv.status === 'pending').length; if (pending > 0) { E.collabNotif.style.display = 'flex'; E.collabNotif.textContent = pending; } else { E.collabNotif.style.display = 'none'; } }
 };
 
-// ============ PROFILE ============
-const Profile = {
-  toggleMenu(e) { e.stopPropagation(); E.profileMenu.classList.toggle('open'); },
-  refreshUI() {
-    const user = Auth.getCurrentUser();
-    if (!user) return;
-    document.documentElement.setAttribute('data-theme', user.theme || 'dark');
-    E.hdrAvatar.textContent = user.avatar || '👤';
-    E.hdrName.textContent = user.name || 'User';
-    E.menuAvatar.textContent = user.avatar || '👤';
-    E.menuName.textContent = user.name || 'User';
-    E.menuEmail.textContent = user.isGuest ? 'Гостевой режим' : (user.email || '—');
-    if (user.isGuest) {
-      E.welcomeUser.innerHTML = `<span class="welcome-avatar">👻</span> Добро пожаловать, Гость!`;
-    } else {
-      E.welcomeUser.innerHTML = `<span class="welcome-avatar">${user.avatar || '👤'}</span> Привет, ${esc(user.name)}!`;
+// ============ AI CODER (Groq + OpenAI + Qwen) ============
+const AI = {
+  key: localStorage.getItem('javier_ai_key') || '',
+  provider: localStorage.getItem('javier_ai_provider') || 'groq',
+  model: localStorage.getItem('javier_ai_model') || 'llama-3.3-70b-versatile',
+  chatOpen: false,
+  chatHistory: [],
+  inlineSuggestion: '',
+  suggestionTimer: null,
+  isLoadingChat: false,
+  isLoadingInline: false,
+
+  // Конфигурация провайдеров
+  PROVIDERS: {
+    groq: {
+      name: 'Groq',
+      url: 'https://api.groq.com/openai/v1/chat/completions',
+      authHeader: 'Authorization',
+      authPrefix: 'Bearer',
+      defaultModel: 'llama-3.3-70b-versatile',
+      models: [
+        { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B (⭐ рекомендую)' },
+        { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B (быстрый)' },
+        { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' },
+        { id: 'gemma2-9b-it', name: 'Gemma 2 9B' }
+      ]
+    },
+    openai: {
+      name: 'OpenAI',
+      url: 'https://api.openai.com/v1/chat/completions',
+      authHeader: 'Authorization',
+      authPrefix: 'Bearer',
+      defaultModel: 'gpt-4o-mini',
+      models: [
+        { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+        { id: 'gpt-4o', name: 'GPT-4o' },
+        { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' }
+      ]
+    },
+    qwen: {
+      name: 'Qwen (Alibaba)',
+      url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+      authHeader: 'Authorization',
+      authPrefix: 'Bearer',
+      defaultModel: 'qwen-coder-plus-latest',
+      models: [
+        { id: 'qwen-coder-plus-latest', name: 'Qwen Coder Plus' },
+        { id: 'qwen-plus', name: 'Qwen Plus' },
+        { id: 'qwen-turbo', name: 'Qwen Turbo' }
+      ]
+    },
+    openrouter: {
+      name: 'OpenRouter (бесплатные модели)',
+      url: 'https://openrouter.ai/api/v1/chat/completions',
+      authHeader: 'Authorization',
+      authPrefix: 'Bearer',
+      defaultModel: 'meta-llama/llama-3.3-70b-instruct:free',
+      models: [
+        { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (бесплатно)' },
+        { id: 'deepseek/deepseek-chat:free', name: 'DeepSeek V3 (бесплатно)' },
+        { id: 'google/gemma-2-9b-it:free', name: 'Gemma 2 9B (бесплатно)' },
+        { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B (бесплатно)' }
+      ]
     }
-    E.suser.textContent = user.isGuest ? '👻 Гость' : `👤 ${user.name}`;
-    Collab.checkNotifications();
   },
+
+  toggleChat() {
+    this.chatOpen = !this.chatOpen;
+    E.aiPanel.classList.toggle('open', this.chatOpen);
+    E.main.classList.toggle('ai-open', this.chatOpen);
+    if (this.chatOpen) {
+      E.aiInput.focus();
+      if (!this.key) setTimeout(() => this.openSettings(), 300);
+    }
+  },
+
   openSettings() {
     E.profileMenu.classList.remove('open');
-    const user = Auth.getCurrentUser();
-    if (!user) return;
+    const currentProv = this.PROVIDERS[this.provider] || this.PROVIDERS.groq;
+    const modelsHtml = currentProv.models.map(m => 
+      `<option value="${m.id}" ${this.model === m.id ? 'selected' : ''}>${m.name}</option>`
+    ).join('');
+    
+    const providerInfo = {
+      groq: '🆓 <strong>Бесплатно!</strong> Регистрация по email, без карты и телефона. Получите ключ: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>',
+      openai: '💳 Платно. Нужна карта. <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>',
+      qwen: '📱 Нужна верификация телефона. <a href="https://dashscope.console.aliyun.com/" target="_blank">dashscope.console.aliyun.com</a>',
+      openrouter: '🆓 Много бесплатных моделей. Регистрация по email. <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>'
+    };
+    
     openMo(`
-      <h3>⚙️ Настройки</h3>
-      <label>Имя:</label>
-      <input type="text" id="pf-name" value="${esc(user.name)}" ${user.isGuest ? 'disabled' : ''}/>
-      <label>Тема:</label>
-      <select id="pf-theme" onchange="Profile.setTheme(this.value)">
-        <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>🌙 Тёмная</option>
-        <option value="light" ${user.theme === 'light' ? 'selected' : ''}>☀️ Светлая</option>
+      <h3>🤖 Настройки AI-кодера</h3>
+      <div class="info">
+        <strong>💡 Рекомендуем Groq</strong> — полностью бесплатно, без карты и телефона!
+      </div>
+      
+      <label>Провайдер:</label>
+      <select id="ai-provider" onchange="AI.onProviderChange()">
+        <option value="groq" ${this.provider === 'groq' ? 'selected' : ''}>🆓 Groq (бесплатно, без телефона) ⭐</option>
+        <option value="openrouter" ${this.provider === 'openrouter' ? 'selected' : ''}>🆓 OpenRouter (бесплатные модели)</option>
+        <option value="openai" ${this.provider === 'openai' ? 'selected' : ''}>💳 OpenAI (платно)</option>
+        <option value="qwen" ${this.provider === 'qwen' ? 'selected' : ''}>📱 Qwen (нужен телефон)</option>
       </select>
+      <div id="provider-info" style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--input-bg);border-radius:4px">${providerInfo[this.provider]}</div>
+      
+      <label>API-ключ:</label>
+      <input type="password" id="ai-key" value="${this.key}" placeholder="Вставьте ваш API-ключ"/>
+      
+      <label>Модель:</label>
+      <select id="ai-model">${modelsHtml}</select>
+      
       <div class="ma">
-        <button class="pri" onclick="Profile.save()">Сохранить</button>
+        <button class="sec" onclick="closeMo()">Отмена</button>
+        <button class="pri" onclick="AI.saveSettings()">💾 Сохранить</button>
       </div>
     `);
   },
-  setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    Auth.updateUser({ theme });
+
+  onProviderChange() {
+    const provider = $('ai-provider').value;
+    const prov = this.PROVIDERS[provider];
+    const modelsHtml = prov.models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    $('ai-model').innerHTML = modelsHtml;
+    
+    const providerInfo = {
+      groq: '🆓 <strong>Бесплатно!</strong> Регистрация по email, без карты и телефона. Получите ключ: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>',
+      openai: '💳 Платно. Нужна карта. <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>',
+      qwen: '📱 Нужна верификация телефона. <a href="https://dashscope.console.aliyun.com/" target="_blank">dashscope.console.aliyun.com</a>',
+      openrouter: '🆓 Много бесплатных моделей. Регистрация по email. <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>'
+    };
+    $('provider-info').innerHTML = providerInfo[provider];
   },
-  save() {
-    const user = Auth.getCurrentUser();
-    if (user.isGuest) return toast('Недоступно для гостя', 'error');
-    const name = $('pf-name').value.trim();
-    if (name.length < 2) return toast('Имя слишком короткое', 'error');
-    Auth.updateUser({ name });
+
+  saveSettings() {
+    this.key = $('ai-key').value.trim();
+    this.provider = $('ai-provider').value;
+    this.model = $('ai-model').value;
+    localStorage.setItem('javier_ai_key', this.key);
+    localStorage.setItem('javier_ai_provider', this.provider);
+    localStorage.setItem('javier_ai_model', this.model);
     closeMo();
-    toast('Настройки сохранены', 'success');
+    toast('Настройки AI сохранены', 'success');
+    this.updateStatus();
+  },
+
+  updateStatus() {
+    const provName = this.PROVIDERS[this.provider]?.name || 'AI';
+    const status = this.key ? `🤖 ${provName}: вкл` : '🤖 AI: выкл';
+    $('s-ai-status').textContent = status;
+    $('s-ai-status').style.color = this.key ? 'var(--ok)' : 'var(--muted)';
+  },
+
+  clearChat() {
+    if (!confirm('Очистить историю чата?')) return;
+    this.chatHistory = [];
+    E.aiChat.innerHTML = this.getWelcomeHTML();
+    toast('Чат очищен', 'success');
+  },
+
+  getWelcomeHTML() {
+    return `
+      <div class="ai-welcome">
+        <div class="ai-welcome-icon">🤖</div>
+        <h4>AI-помощник готов к работе</h4>
+        <p>Задайте вопрос о коде, попросите написать функцию или объяснить концепцию.</p>
+        <div class="ai-suggestions">
+          <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Напиши функцию сортировки массива объектов по полю')">✨ Напиши функцию сортировки</button>
+          <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Объясни, как работает этот код')">📖 Объясни текущий код</button>
+          <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Добавь обработку ошибок в этот код')">🛡️ Добавь обработку ошибок</button>
+          <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Оптимизируй этот код для производительности')">⚡ Оптимизируй код</button>
+        </div>
+      </div>
+    `;
+  },
+
+  useSuggestion(text) {
+    E.aiInput.value = text;
+    E.aiInput.focus();
+  },
+
+  formatContent(text) {
+    let html = esc(text);
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
+    html = html.replace(/`([^`\n]+)`/g, '<code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:12px">$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  },
+
+  addChatMsg(role, content) {
+    const welcome = E.aiChat.querySelector('.ai-welcome');
+    if (welcome) welcome.remove();
+    const div = document.createElement('div');
+    div.className = `ai-msg ${role}`;
+    const isUser = role === 'user';
+    const contentHtml = this.formatContent(content);
+    if (isUser) {
+      div.innerHTML = `<div class="role">👤 Вы</div><div>${contentHtml}</div>`;
+    } else {
+      const provName = this.PROVIDERS[this.provider]?.name || 'AI';
+      div.innerHTML = `
+        <div class="role">🤖 AI <span class="badge">${provName}</span></div>
+        <div>${contentHtml}</div>
+        <div class="ai-actions">
+          <button onclick="AI.copyMsgCode(this)">📋 Копировать</button>
+          <button class="secondary" onclick="AI.insertMsgCode(this)">📝 Вставить в файл</button>
+          <button class="secondary" onclick="AI.replaceFileCode(this)">🔄 Заменить файл</button>
+        </div>
+      `;
+    }
+    E.aiChat.appendChild(div);
+    E.aiChat.scrollTop = E.aiChat.scrollHeight;
+    return div;
+  },
+
+  showChatLoading(show) {
+    const existing = E.aiChat.querySelector('.ai-loading');
+    if (existing) existing.remove();
+    if (show) {
+      const div = document.createElement('div');
+      div.className = 'ai-loading';
+      div.innerHTML = '<div></div><div></div><div></div>';
+      E.aiChat.appendChild(div);
+      E.aiChat.scrollTop = E.aiChat.scrollHeight;
+    }
+  },
+
+  async callAPI(messages, maxTokens = 2000, temperature = 0.7) {
+    const prov = this.PROVIDERS[this.provider];
+    if (!prov) throw new Error('Провайдер не найден. Откройте настройки AI.');
+    
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    headers[prov.authHeader] = `${prov.authPrefix} ${this.key}`;
+    
+    // Для OpenRouter нужен дополнительный заголовок
+    if (this.provider === 'openrouter') {
+      headers['HTTP-Referer'] = location.origin || 'https://javier.ide';
+      headers['X-Title'] = 'Javier IDE';
+    }
+    
+    const res = await fetch(prov.url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        model: this.model,
+        messages: messages,
+        max_tokens: maxTokens,
+        temperature: temperature
+      })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const errMsg = err.error?.message || err.message || `HTTP ${res.status}`;
+      throw new Error(errMsg);
+    }
+    const data = await res.json();
+    return data.choices[0].message.content;
+  },
+
+  async sendChat() {
+    const prompt = E.aiInput.value.trim();
+    if (!prompt || this.isLoadingChat) return;
+    if (!this.key) {
+      toast('Сначала настройте API-ключ', 'error');
+      this.openSettings();
+      return;
+    }
+
+    E.aiInput.value = '';
+    E.aiInput.style.height = '40px';
+    this.isLoadingChat = true;
+    E.aiSend.disabled = true;
+
+    this.addChatMsg('user', prompt);
+    this.showChatLoading(true);
+
+    const currentFile = S.files[S.active] || '';
+    const systemMsg = `Ты профессиональный JS-разработчик и помощник в Javier IDE. Отвечай кратко и по делу. Если даёшь код — оборачивай его в блоки \`\`\`javascript. Пиши на русском языке.
+
+Текущий файл: "${S.active}"
+Содержимое файла:
+\`\`\`
+${currentFile}
+\`\`\``;
+
+    const messages = [{ role: 'system', content: systemMsg }];
+    const recentHistory = this.chatHistory.slice(-10);
+    recentHistory.forEach(msg => messages.push(msg));
+    messages.push({ role: 'user', content: prompt });
+
+    try {
+      const reply = await this.callAPI(messages, 2000, 0.7);
+      this.showChatLoading(false);
+      this.addChatMsg('ai', reply);
+      this.chatHistory.push({ role: 'user', content: prompt });
+      this.chatHistory.push({ role: 'assistant', content: reply });
+      if (this.chatHistory.length > 20) this.chatHistory = this.chatHistory.slice(-20);
+    } catch (err) {
+      this.showChatLoading(false);
+      this.addChatMsg('ai', `❌ Ошибка: ${err.message}\n\nПроверьте API-ключ и настройки.`);
+      console.error('AI Chat Error:', err);
+    } finally {
+      this.isLoadingChat = false;
+      E.aiSend.disabled = false;
+      E.aiInput.focus();
+    }
+  },
+
+  copyMsgCode(btn) {
+    const msg = btn.closest('.ai-msg');
+    const pre = msg.querySelector('pre');
+    if (!pre) {
+      const content = msg.querySelector('div:nth-child(2)').textContent;
+      navigator.clipboard.writeText(content);
+      toast('Текст скопирован', 'success');
+      return;
+    }
+    navigator.clipboard.writeText(pre.textContent.trim());
+    toast('Код скопирован', 'success');
+  },
+
+  insertMsgCode(btn) {
+    const msg = btn.closest('.ai-msg');
+    const pre = msg.querySelector('pre');
+    if (!pre) return toast('В ответе нет блока кода', 'error');
+    const code = pre.textContent.trim();
+    const start = E.ed.selectionStart;
+    E.ed.value = E.ed.value.substring(0, start) + '\n' + code + '\n' + E.ed.value.substring(E.ed.selectionEnd);
+    E.ed.selectionStart = E.ed.selectionEnd = start + code.length + 2;
+    E.ed.focus();
+    updHi(); saveAll();
+    toast('Код вставлен в редактор', 'success');
+  },
+
+  replaceFileCode(btn) {
+    const msg = btn.closest('.ai-msg');
+    const pre = msg.querySelector('pre');
+    if (!pre) return toast('В ответе нет блока кода', 'error');
+    if (!confirm('Заменить ВСЁ содержимое файла "' + S.active + '"?')) return;
+    const code = pre.textContent.trim();
+    E.ed.value = code;
+    E.ed.focus();
+    updHi(); saveAll();
+    toast('Файл заменён', 'success');
+  },
+
+  async requestSuggestion() {
+    if (!this.key || !S.options.aiEnabled || this.isLoadingInline) return;
+    const cursorPos = E.ed.selectionStart;
+    const beforeCursor = E.ed.value.substring(0, cursorPos);
+    const lines = E.ed.value.split('\n');
+    const currentLine = beforeCursor.split('\n').length;
+    const contextStart = Math.max(0, currentLine - 10);
+    const contextEnd = Math.min(lines.length, currentLine + 10);
+    const context = lines.slice(contextStart, contextEnd).join('\n');
+    const prompt = `Дополни код JavaScript. Пиши ТОЛЬКО код, без объяснений и markdown. Продолжай с того места, где остановился пользователь:\n\n${context}`;
+    this.isLoadingInline = true;
+    try {
+      const messages = [
+        { role: 'system', content: 'Ты автодополнение кода. Возвращай ТОЛЬКО продолжение кода, без объяснений, без markdown, без ```.' },
+        { role: 'user', content: prompt }
+      ];
+      const reply = await this.callAPI(messages, 150, 0.3);
+      this.inlineSuggestion = reply.replace(/^```[\s\S]*?```/gm, '').replace(/^`|`$/g, '').trim().split('\n\n')[0];
+      if (this.inlineSuggestion && this.inlineSuggestion.length > 3) this.showInlineSuggestion();
+    } catch (err) {
+      console.error('AI Inline Error:', err);
+      this.inlineSuggestion = '';
+    } finally {
+      this.isLoadingInline = false;
+    }
+  },
+
+  showInlineSuggestion() {
+    if (!this.inlineSuggestion) { E.aiSuggestion.classList.remove('show'); return; }
+    const cursorPos = E.ed.selectionStart;
+    const lines = E.ed.value.substring(0, cursorPos).split('\n');
+    const line = lines.length;
+    const col = lines[lines.length - 1].length;
+    const lineHeight = 21;
+    const charWidth = 8.4;
+    E.aiSuggestion.style.top = (10 + (line - 1) * lineHeight) + 'px';
+    E.aiSuggestion.style.left = (10 + col * charWidth) + 'px';
+    E.aiSuggestion.textContent = this.inlineSuggestion;
+    E.aiSuggestion.classList.add('show');
+  },
+
+  hideInlineSuggestion() {
+    E.aiSuggestion.classList.remove('show');
+    this.inlineSuggestion = '';
+  },
+
+  acceptInlineSuggestion() {
+    if (!this.inlineSuggestion) return false;
+    const cursorPos = E.ed.selectionStart;
+    E.ed.value = E.ed.value.substring(0, cursorPos) + this.inlineSuggestion + E.ed.value.substring(cursorPos);
+    E.ed.selectionStart = E.ed.selectionEnd = cursorPos + this.inlineSuggestion.length;
+    this.hideInlineSuggestion();
+    updHi();
+    saveAll();
+    return true;
   }
 };
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('.profile-btn') && !e.target.closest('.profile-menu')) {
-    E.profileMenu.classList.remove('open');
-  }
-});
+const Profile = {
+  toggleMenu(e) { e.stopPropagation(); E.profileMenu.classList.toggle('open'); },
+  refreshUI() {
+    const user = Auth.getCurrentUser(); if (!user) return;
+    document.documentElement.setAttribute('data-theme', user.theme || 'dark');
+    E.hdrAvatar.textContent = user.avatar || '👤'; E.hdrName.textContent = user.name || 'User';
+    E.menuAvatar.textContent = user.avatar || '👤'; E.menuName.textContent = user.name || 'User';
+    E.menuEmail.textContent = user.isGuest ? 'Гостевой режим' : (user.email || '—');
+    E.welcomeUser.innerHTML = user.isGuest ? `<span class="welcome-avatar">👻</span> Добро пожаловать, Гость!` : `<span class="welcome-avatar">${user.avatar || '👤'}</span> Привет, ${esc(user.name)}!`;
+    E.suser.textContent = user.isGuest ? '👻 Гость' : `👤 ${user.name}`;
+    Collab.checkNotifications();
+    AI.updateStatus();
+  },
+  openSettings() { E.profileMenu.classList.remove('open'); const user = Auth.getCurrentUser(); if (!user) return; openMo(`<h3>⚙️ Настройки</h3><label>Имя:</label><input type="text" id="pf-name" value="${esc(user.name)}" ${user.isGuest ? 'disabled' : ''}/><label>Тема:</label><select id="pf-theme" onchange="Profile.setTheme(this.value)"><option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>🌙 Тёмная</option><option value="light" ${user.theme === 'light' ? 'selected' : ''}>☀️ Светлая</option></select><div class="ma"><button class="pri" onclick="Profile.save()">Сохранить</button></div>`); },
+  setTheme(theme) { document.documentElement.setAttribute('data-theme', theme); Auth.updateUser({ theme }); },
+  save() { const user = Auth.getCurrentUser(); if (user.isGuest) return toast('Недоступно для гостя', 'error'); const name = $('pf-name').value.trim(); if (name.length < 2) return toast('Имя слишком короткое', 'error'); Auth.updateUser({ name }); closeMo(); toast('Настройки сохранены', 'success'); }
+};
 
-document.querySelectorAll('.auth-tab').forEach(t => {
-  t.onclick = () => {
-    document.querySelectorAll('.auth-tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.auth-form').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    $('form-' + t.dataset.auth).classList.add('active');
-    Auth.hideMsg();
-  };
-});
+document.addEventListener('click', e => { if (!e.target.closest('.profile-btn') && !e.target.closest('.profile-menu')) E.profileMenu.classList.remove('open'); });
+document.querySelectorAll('.auth-tab').forEach(t => { t.onclick = () => { document.querySelectorAll('.auth-tab').forEach(x => x.classList.remove('active')); document.querySelectorAll('.auth-form').forEach(x => x.classList.remove('active')); t.classList.add('active'); $('form-' + t.dataset.auth).classList.add('active'); Auth.hideMsg(); }; });
+E.aiInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); AI.sendChat(); } });
+E.aiInput.addEventListener('input', () => { E.aiInput.style.height = '40px'; E.aiInput.style.height = Math.min(120, E.aiInput.scrollHeight) + 'px'; });
 
-function startIDE() {
-  E.landing.classList.add('hidden');
-  E.ide.classList.add('visible');
-}
-function showLanding() {
-  E.landing.classList.remove('hidden');
-  E.ide.classList.remove('visible');
-}
+function startIDE() { E.landing.classList.add('hidden'); E.ide.classList.add('visible'); }
+function showLanding() { E.landing.classList.remove('hidden'); E.ide.classList.remove('visible'); }
 
-function saveAll() {
-  if (!S.options.autosave || !S.currentProjectId) return;
-  Projects.saveCurrentProject();
-  Collab.broadcastUpdate();
-  E.ssaved.textContent = '✓ Сохранено';
-}
+function pushUndo() { if (S.lastValue !== E.ed.value) { S.undoStack.push(S.lastValue); if (S.undoStack.length > 100) S.undoStack.shift(); S.redoStack = []; S.lastValue = E.ed.value; } }
+function undo() { if (S.undoStack.length === 0) return; S.redoStack.push(E.ed.value); E.ed.value = S.undoStack.pop(); S.lastValue = E.ed.value; updHi(); updLn(); saveAll(); }
+function redo() { if (S.redoStack.length === 0) return; S.undoStack.push(E.ed.value); E.ed.value = S.redoStack.pop(); S.lastValue = E.ed.value; updHi(); updLn(); saveAll(); }
+function saveAll() { if (!S.options.autosave || !S.currentProjectId) return; Projects.saveCurrentProject(); Collab.broadcastUpdate(); E.ssaved.textContent = '✓ Сохранено'; }
 function loadAll() {
   const data = Projects.load();
-  if (data.activeId && data.projects[data.activeId]) {
-    Projects.loadProject(data.activeId);
-  } else if (Object.keys(data.projects).length > 0) {
-    Projects.loadProject(Object.keys(data.projects)[0]);
-  } else {
-    const newId = Projects.create('Мой первый проект');
-    Projects.loadProject(newId);
-  }
-  S.ghToken = localStorage.getItem('javier_gh');
-  if (S.ghToken) E.ghtok.value = '•'.repeat(S.ghToken.length);
-  $('opt-as').checked = S.options.autosave;
-  $('opt-lint').checked = S.options.lint;
+  if (data.activeId && data.projects[data.activeId]) Projects.loadProject(data.activeId);
+  else if (Object.keys(data.projects).length > 0) Projects.loadProject(Object.keys(data.projects)[0]);
+  else Projects.loadProject(Projects.create('Мой первый проект'));
+  S.ghToken = localStorage.getItem('javier_gh'); if (S.ghToken) E.ghtok.value = '•'.repeat(S.ghToken.length);
+  $('opt-as').checked = S.options.autosave; $('opt-lint').checked = S.options.lint; $('opt-minimap').checked = S.options.minimap; $('opt-ai').checked = S.options.aiEnabled;
+  toggleMinimap();
 }
 
-// ============ SHARE ============
-const Share = {
-  openStudioShareModal() {
-    const url = location.origin + location.pathname;
-    openMo(`<h3>🔗 Поделиться</h3><textarea readonly onclick="this.select()">${url}</textarea><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
-  },
-  openProjectShareModal() {
-    toast('Функция в разработке', 'info');
-  }
-};
+const Share = { openStudioShareModal() { openMo(`<h3>🔗 Поделиться</h3><textarea readonly onclick="this.select()">${location.origin + location.pathname}</textarea><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`); }, openProjectShareModal() { toast('Функция в разработке', 'info'); } };
 
-// ============ FILE TREE & EDITOR ============
 const ficon = n => ({js:'📜',html:'🌐',css:'🎨',md:'📝',json:'📦'}[n.split('.').pop()] || '📄');
-function renderTree() {
-  E.ftree.innerHTML = '';
-  Object.keys(S.files).sort().forEach(n => {
-    const d = document.createElement('div');
-    d.className = 'fitem' + (n===S.active?' active':'');
-    d.innerHTML = `<span><span style="opacity:.7;margin-right:6px">${ficon(n)}</span>${esc(n)}</span><button class="del">×</button>`;
-    d.querySelector('.del').onclick = e => { e.stopPropagation(); A.delFile(n); };
-    d.onclick = () => A.switch(n);
-    E.ftree.appendChild(d);
-  });
-}
-function loadFile(n) {
-  if (!S.files[n]) S.files[n] = '';
-  E.ed.value = S.files[n];
-  E.sfile.textContent = n;
-  updHi(); updLn(); updPrb();
-  if (n.endsWith('.html')) { updPv(); btmTab('prv'); }
-}
-function hiJS(c) {
-  let h = esc(c);
-  h = h.replace(/(\/\/[^\n]*)/g,'<span class="tok-c">$1</span>');
-  h = h.replace(/(\/\*[\s\S]*?\*\/)/g,'<span class="tok-c">$1</span>');
-  h = h.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g,'<span class="tok-s">$1</span>');
-  h = h.replace(/\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|new|this|class|extends|super|import|export|from|default|try|catch|finally|throw|async|await|yield|typeof|instanceof|in|of|void|delete|true|false|null|undefined)\b/g,'<span class="tok-k">$1</span>');
-  h = h.replace(/\b(\d+\.?\d*)\b/g,'<span class="tok-n">$1</span>');
-  h = h.replace(/\b([a-zA-Z_$][\w$]*)\s*(?=\()/g,'<span class="tok-f">$1</span>');
-  return h;
-}
-function hiHTML(c) {
-  let h = esc(c);
-  h = h.replace(/(&lt;\/?[a-zA-Z][^&]*?&gt;)/g,'<span class="tok-k">$1</span>');
-  h = h.replace(/(&quot;[^&]*?&quot;)/g,'<span class="tok-s">$1</span>');
-  h = h.replace(/(&lt;!--[\s\S]*?--&gt;)/g,'<span class="tok-c">$1</span>');
-  return h;
-}
+function renderTree() { E.ftree.innerHTML = ''; Object.keys(S.files).sort().forEach(n => { const d = document.createElement('div'); d.className = 'fitem' + (n===S.active?' active':''); d.innerHTML = `<span><span style="opacity:.7;margin-right:6px">${ficon(n)}</span>${esc(n)}</span><button class="del">×</button>`; d.querySelector('.del').onclick = e => { e.stopPropagation(); A.delFile(n); }; d.onclick = () => A.switch(n); E.ftree.appendChild(d); }); }
+function loadFile(n) { if (!S.files[n]) S.files[n] = ''; E.ed.value = S.files[n]; S.lastValue = S.files[n]; S.undoStack = []; S.redoStack = []; E.sfile.textContent = n; updHi(); updLn(); updPrb(); updMinimap(); if (n.endsWith('.html')) { updPv(); btmTab('prv'); } }
+function hiJS(c) { let h = esc(c); h = h.replace(/(\/\/[^\n]*)/g,'<span class="tok-c">$1</span>'); h = h.replace(/(\/\*[\s\S]*?\*\/)/g,'<span class="tok-c">$1</span>'); h = h.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g,'<span class="tok-s">$1</span>'); h = h.replace(/\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|new|this|class|extends|super|import|export|from|default|try|catch|finally|throw|async|await|yield|typeof|instanceof|in|of|void|delete|true|false|null|undefined)\b/g,'<span class="tok-k">$1</span>'); h = h.replace(/\b(\d+\.?\d*)\b/g,'<span class="tok-n">$1</span>'); h = h.replace(/\b([a-zA-Z_$][\w$]*)\s*(?=\()/g,'<span class="tok-f">$1</span>'); return h; }
+function hiHTML(c) { let h = esc(c); h = h.replace(/(&lt;\/?[a-zA-Z][^&]*?&gt;)/g,'<span class="tok-k">$1</span>'); h = h.replace(/(&quot;[^&]*?&quot;)/g,'<span class="tok-s">$1</span>'); h = h.replace(/(&lt;!--[\s\S]*?--&gt;)/g,'<span class="tok-c">$1</span>'); return h; }
 function updHi() { E.cd.innerHTML = (S.active.endsWith('.html') ? hiHTML(E.ed.value) : hiJS(E.ed.value)) + '\n'; }
 function updLn() {
-  const n = E.ed.value.split('\n').length;
-  const bps = S.bp[S.active] || new Set();
-  E.ln.innerHTML = Array.from({length:n},(_,i)=>`<div class="ln-n ${bps.has(i+1)?'bp':''}" data-l="${i+1}">${i+1}</div>`).join('');
-  E.ln.querySelectorAll('.ln-n').forEach(el => el.onclick = () => A.toggleBP(+el.dataset.l));
+  const n = E.ed.value.split('\n').length, bps = S.bp[S.active] || new Set();
+  const lines = E.ed.value.split('\n'), pos = E.ed.selectionStart, currentLine = E.ed.value.substring(0, pos).split('\n').length;
+  E.ln.innerHTML = Array.from({length:n},(_,i)=>{ const ln = i+1, isCur = ln === currentLine; return `<div class="ln-n ${bps.has(ln)?'bp':''} ${isCur?'current':''}" data-l="${ln}">${ln}</div>`; }).join('');
+  E.ln.querySelectorAll('.ln-n').forEach(el => el.onclick = () => A.toggleBP(+el.dataset.l)); E.slines.textContent = `${n} строк`;
 }
-function updCur() {
-  const v = E.ed.value, p = E.ed.selectionStart;
-  const lns = v.substring(0,p).split('\n');
-  E.scur.textContent = `Строка ${lns.length}, Столбец ${lns[lns.length-1].length+1}`;
-}
+function updCur() { const v = E.ed.value, p = E.ed.selectionStart, lns = v.substring(0,p).split('\n'); E.scur.textContent = `Строка ${lns.length}, Столбец ${lns[lns.length-1].length+1}`; E.currentLine.style.top = (10 + (lns.length - 1) * 21) + 'px'; Collab.broadcastCursor(lns.length, lns[lns.length-1].length+1); }
+function updMinimap() { if (!S.options.minimap) return; const lines = E.ed.value.split('\n'); E.minimapContent.textContent = lines.map(l => esc(l.substring(0, 100))).join('\n'); const th = E.ed.scrollHeight, vh = E.ed.clientHeight, st = E.ed.scrollTop, mh = E.minimap.clientHeight, sc = 0.2; E.minimapViewport.style.top = (st/th)*mh*sc+'px'; E.minimapViewport.style.height = Math.max(20,(vh/th)*mh*sc)+'px'; }
+function toggleMinimap() { E.minimap.style.display = S.options.minimap ? 'block' : 'none'; document.querySelector('.ew').style.right = S.options.minimap ? '100px' : '0'; if (S.options.minimap) updMinimap(); }
+
 E.ed.addEventListener('input', () => {
-  updHi(); updLn();
+  pushUndo(); updHi(); updLn(); updMinimap();
   E.ssaved.textContent = '● Изменено';
   if (S.options.autosave) { clearTimeout(E._st); E._st = setTimeout(saveAll, 500); }
   if (S.options.lint && S.active.endsWith('.js')) updPrb();
   if (S.active.endsWith('.html')) updPv();
+  AI.hideInlineSuggestion();
+  clearTimeout(AI.suggestionTimer);
+  if (S.options.aiEnabled && AI.key && !AI.chatOpen) {
+    AI.suggestionTimer = setTimeout(() => AI.requestSuggestion(), 800);
+  }
 });
-E.ed.addEventListener('scroll', () => { E.hi.scrollTop = E.ed.scrollTop; E.hi.scrollLeft = E.ed.scrollLeft; E.ln.scrollTop = E.ed.scrollTop; });
-E.ed.addEventListener('click', updCur);
-E.ed.addEventListener('keyup', updCur);
+E.ed.addEventListener('scroll', () => { E.hi.scrollTop = E.ed.scrollTop; E.hi.scrollLeft = E.ed.scrollLeft; E.ln.scrollTop = E.ed.scrollTop; updMinimap(); AI.showInlineSuggestion(); });
+E.ed.addEventListener('click', updCur); E.ed.addEventListener('keyup', updCur);
 E.ed.addEventListener('keydown', e => {
   if (e.key === 'Tab') {
+    if (AI.inlineSuggestion) { e.preventDefault(); AI.acceptInlineSuggestion(); return; }
     e.preventDefault();
     const s = E.ed.selectionStart, en = E.ed.selectionEnd, v = E.ed.value;
-    if (s !== en) {
-      const ls = v.lastIndexOf('\n',s-1)+1;
-      const b = v.substring(ls,en);
-      const ind = (e.shiftKey ? b.replace(/^ {1,2}/gm,'') : '  '+b.replace(/\n/g,'\n  ')).replace(/\n  $/,'\n');
-      E.ed.value = v.substring(0,ls)+ind+v.substring(en);
-    } else {
-      E.ed.value = v.substring(0,s)+'  '+v.substring(en);
-      E.ed.selectionStart = E.ed.selectionEnd = s+2;
-    }
+    if (s !== en) { const ls = v.lastIndexOf('\n',s-1)+1, b = v.substring(ls,en), ind = (e.shiftKey ? b.replace(/^ {1,2}/gm,'') : '  '+b.replace(/\n/g,'\n  ')).replace(/\n  $/,'\n'); E.ed.value = v.substring(0,ls)+ind+v.substring(en); }
+    else { E.ed.value = v.substring(0,s)+'  '+v.substring(en); E.ed.selectionStart = E.ed.selectionEnd = s+2; }
     updHi(); saveAll();
   }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey) { e.preventDefault(); undo(); }
+  if ((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))) { e.preventDefault(); redo(); }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); saveAll(); toast('Сохранено','success',1500); }
   if ((e.ctrlKey||e.metaKey)&&e.key==='Enter') { e.preventDefault(); A.run(); }
+  if (e.key === 'Escape') { AI.hideInlineSuggestion(); }
+  const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
+  if (pairs[e.key] && !e.ctrlKey && !e.metaKey) { const s = E.ed.selectionStart, en = E.ed.selectionEnd; if (s !== en) { e.preventDefault(); const v = E.ed.value; E.ed.value = v.substring(0,s)+e.key+v.substring(s,en)+pairs[e.key]+v.substring(en); E.ed.selectionStart = s+1; E.ed.selectionEnd = en+1; updHi(); } }
 });
-function updPrb() {
-  if (!S.active.endsWith('.js')) { E.prb.innerHTML = '<div style="color:var(--muted);padding:10px">Проверка только для JS</div>'; return; }
-  const p = [];
-  try { new Function(E.ed.value); } catch(e) { p.unshift({l:1,m:'Ошибка: '+e.message,t:'error'}); }
-  E.prb.innerHTML = p.length === 0 ? '<div style="color:var(--ok);padding:10px">✓ Проблем нет</div>' : p.map(x => `<div class="pi ${x.t}"><strong>${S.active}:${x.l}</strong> — ${esc(x.m)}</div>`).join('');
-}
-function updPv() {
-  if (!S.active.endsWith('.html')) return;
-  let h = E.ed.value;
-  const js = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`<script>try{${S.files[n]}}catch(e){console.error(e)}<\/script>`);
-  h = h.includes('</body>') ? h.replace('</body>',js.join('\n')+'\n</body>') : h+'\n'+js.join('\n');
-  E.pvf.srcdoc = h;
-}
-
+E.minimap.addEventListener('click', (e) => { const y = e.clientY - E.minimap.getBoundingClientRect().top, lines = E.ed.value.split('\n'), line = Math.floor((y / E.minimap.clientHeight) * lines.length) + 1; let pos = 0; for (let i=0;i<line-1&&i<lines.length;i++) pos += lines[i].length+1; E.ed.selectionStart = E.ed.selectionEnd = pos; E.ed.focus(); updCur(); E.ed.scrollTop = (line-1)*21 - E.ed.clientHeight/2; });
+function updPrb() { if (!S.active.endsWith('.js')) { E.prb.innerHTML = '<div style="color:var(--muted);padding:10px">Проверка только для JS</div>'; return; } const p = []; try { new Function(E.ed.value); } catch(e) { const m = e.message.match(/position (\d+)/); let l = 1; if (m) l = E.ed.value.substring(0,parseInt(m[1])).split('\n').length; p.unshift({l,m:'Ошибка: '+e.message,t:'error'}); } E.prb.innerHTML = p.length === 0 ? '<div style="color:var(--ok);padding:10px">✓ Проблем нет</div>' : p.map(x => `<div class="pi ${x.t}" onclick="A.goLine(${x.l})"><strong>${S.active}:${x.l}</strong> — ${esc(x.m)}</div>`).join(''); }
+function updPv() { if (!S.active.endsWith('.html')) return; let h = E.ed.value; const js = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`<script>try{${S.files[n]}}catch(e){console.error(e)}<\/script>`); h = h.includes('</body>') ? h.replace('</body>',js.join('\n')+'\n</body>') : h+'\n'+js.join('\n'); E.pvf.srcdoc = h; }
 function log(t,s) { const d = document.createElement('div'); d.className = 'll '+t; d.textContent = s; E.con.appendChild(d); E.con.scrollTop = E.con.scrollHeight; }
-function run() {
-  btmTab('con');
-  E.con.innerHTML = '<div class="ll info">🚀 Запуск...</div>';
-  S.files[S.active] = E.ed.value;
-  const all = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`// ===== ${n} =====\n${S.files[n]}`).join('\n\n');
-  E.sbx.srcdoc = `<script>
-    const P=(t,a)=>window.parent.postMessage({t,a},'*');
-    ['log','warn','error','info'].forEach(m=>{const o=console[m];console[m]=(...a)=>{P(m,a.map(x=>{try{if(x instanceof Error)return x.stack||x.message;if(typeof x==='object')return JSON.stringify(x,null,2);return String(x)}catch(e){return String(x)}}))}});
-    window.onerror=(m,u,l)=>P('error',['❌ '+m+' (строка '+l+')']);
-    try{${all}}catch(e){console.error(e)}
-    P('info',['✓ Завершено']);
-  <\/script>`;
-}
+function run() { btmTab('con'); E.con.innerHTML = '<div class="ll info">🚀 Запуск...</div>'; S.files[S.active] = E.ed.value; const all = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`// ===== ${n} =====\n${S.files[n]}`).join('\n\n'); E.sbx.srcdoc = `<script>const P=(t,a)=>window.parent.postMessage({t,a},'*');['log','warn','error','info'].forEach(m=>{const o=console[m];console[m]=(...a)=>{P(m,a.map(x=>{try{if(x instanceof Error)return x.stack||x.message;if(typeof x==='object')return JSON.stringify(x,null,2);return String(x)}catch(e){return String(x)}}))}});window.onerror=(m,u,l)=>P('error',['❌ '+m+' (строка '+l+')']);try{${all}}catch(e){console.error(e)}P('info',['✓ Завершено']);<\/script>`; }
 window.addEventListener('message', e => { if (e.data && ['log','warn','error','info'].includes(e.data.t)) log(e.data.t, e.data.a.join(' ')); });
 
-const A = {
-  switch(n) { saveAll(); S.active = n; loadFile(n); renderTree(); },
-  addFile() {
-    const n = prompt('Имя файла:');
-    if (!n || S.files[n]) return;
-    S.files[n] = ''; S.active = n; saveAll(); renderTree(); loadFile(n);
-  },
-  delFile(n) {
-    if (Object.keys(S.files).length<=1) return toast('Нельзя удалить последний','error');
-    if (!confirm('Удалить '+n+'?')) return;
-    delete S.files[n]; delete S.bp[n];
-    if (S.active===n) S.active = Object.keys(S.files)[0];
-    saveAll(); renderTree(); loadFile(S.active);
-  },
-  run, preview() { if (!S.active.endsWith('.html')) return toast('Нужен HTML','error'); updPv(); btmTab('prv'); },
-  ghModal() { openMo(`<h3>📤 GitHub</h3><div class="info">Функция в разработке</div><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`); },
-  exportMenu() { openMo(`<h3>📦 Экспорт</h3><div class="info">Функция в разработке</div><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`); },
-  import() { toast('Функция в разработке', 'info'); },
-  newProject() { Projects.createPrompt(); },
-  find() { toast('Поиск в разработке', 'info'); },
-  replace() { toast('Замена в разработке', 'info'); },
-  search() { sideTab('search'); E.si.focus(); },
-  toggleBP(l) {
-    if (!S.bp[S.active]) S.bp[S.active] = new Set();
-    const s = S.bp[S.active];
-    s.has(l) ? s.delete(l) : s.add(l);
-    updLn(); saveAll();
-  },
-  saveTok() {
-    const t = E.ghtok.value.trim();
-    if (t && !t.includes('•')) { S.ghToken = t; localStorage.setItem('javier_gh',t); E.ghtok.value = '•'.repeat(t.length); toast('Токен сохранён','success'); }
-    else toast('Введите токен','error');
-  },
-  clearTok() { S.ghToken=null; localStorage.removeItem('javier_gh'); E.ghtok.value=''; toast('Токен очищен','success'); }
-};
+const A = { switch(n) { saveAll(); S.active = n; loadFile(n); renderTree(); }, addFile() { const n = prompt('Имя файла:'); if (!n || S.files[n]) return; S.files[n] = ''; S.active = n; saveAll(); renderTree(); loadFile(n); }, delFile(n) { if (Object.keys(S.files).length<=1) return toast('Нельзя удалить последний','error'); if (!confirm('Удалить '+n+'?')) return; delete S.files[n]; delete S.bp[n]; if (S.active===n) S.active = Object.keys(S.files)[0]; saveAll(); renderTree(); loadFile(S.active); }, run, preview() { if (!S.active.endsWith('.html')) return toast('Нужен HTML','error'); updPv(); btmTab('prv'); }, ghModal() { openMo(`<h3>📤 GitHub</h3><div class="info">Функция в разработке</div><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`); }, exportMenu() { openMo(`<h3>📦 Экспорт</h3><div class="info">Функция в разработке</div><div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>`); }, import() { toast('Функция в разработке', 'info'); }, newProject() { Projects.createPrompt(); }, find() { toast('Поиск в разработке', 'info'); }, replace() { toast('Замена в разработке', 'info'); }, search() { sideTab('search'); E.si.focus(); }, toggleBP(l) { if (!S.bp[S.active]) S.bp[S.active] = new Set(); const s = S.bp[S.active]; s.has(l) ? s.delete(l) : s.add(l); updLn(); saveAll(); }, goLine(l) { btmTab('prb'); const lines = E.ed.value.split('\n'); let pos = 0; for (let i=0;i<l-1&&i<lines.length;i++) pos += lines[i].length+1; E.ed.focus(); E.ed.selectionStart = E.ed.selectionEnd = pos; updCur(); E.ed.scrollTop = (l-1)*21 - E.ed.clientHeight/2; }, saveTok() { const t = E.ghtok.value.trim(); if (t && !t.includes('•')) { S.ghToken = t; localStorage.setItem('javier_gh',t); E.ghtok.value = '•'.repeat(t.length); toast('Токен сохранён','success'); } else toast('Введите токен','error'); }, clearTok() { S.ghToken=null; localStorage.removeItem('javier_gh'); E.ghtok.value=''; toast('Токен очищен','success'); } };
 
-function sideTab(t) {
-  document.querySelectorAll('.side-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  document.querySelectorAll('.side-c').forEach(c=>c.classList.toggle('active',c.id==='tab-'+t));
-}
-function btmTab(t) {
-  document.querySelectorAll('.btabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  document.querySelectorAll('.bc').forEach(c=>c.classList.toggle('active',c.id==='btm-'+t));
-}
-document.querySelectorAll('.side-tabs button').forEach(b=>b.onclick=()=>sideTab(b.dataset.tab));
-document.querySelectorAll('.btabs button').forEach(b=>b.onclick=()=>btmTab(b.dataset.tab));
+function sideTab(t) { document.querySelectorAll('.side-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t)); document.querySelectorAll('.side-c').forEach(c=>c.classList.toggle('active',c.id==='tab-'+t)); }
+function btmTab(t) { document.querySelectorAll('.btabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t)); document.querySelectorAll('.bc').forEach(c=>c.classList.toggle('active',c.id==='btm-'+t)); }
+document.querySelectorAll('.side-tabs button').forEach(b=>b.onclick=()=>sideTab(b.dataset.tab)); document.querySelectorAll('.btabs button').forEach(b=>b.onclick=()=>btmTab(b.dataset.tab));
 
-// ============ INIT ============
 (function init() {
   const session = Auth.getSession();
-  if (!session) {
-    E.authScreen.classList.remove('hidden');
-    E.landing.classList.add('hidden');
-    E.ide.classList.remove('visible');
-    return;
-  }
+  if (!session) { E.authScreen.classList.remove('hidden'); E.landing.classList.add('hidden'); E.ide.classList.remove('visible'); return; }
   const user = Auth.getCurrentUser();
-  if (!user) {
-    Auth.setSession(null);
-    E.authScreen.classList.remove('hidden');
-    return;
-  }
+  if (!user) { Auth.setSession(null); E.authScreen.classList.remove('hidden'); return; }
   document.documentElement.setAttribute('data-theme', user.theme || 'dark');
-  loadAll();
-  Profile.refreshUI();
-  E.authScreen.classList.add('hidden');
-  E.landing.classList.remove('hidden');
+  loadAll(); Profile.refreshUI(); E.authScreen.classList.add('hidden'); E.landing.classList.remove('hidden');
   toast(`Добро пожаловать, ${user.name}!`, 'success', 2500);
-
-  // Check for collab notifications periodically
   setInterval(() => Collab.checkNotifications(), 5000);
 })();
 </script>
