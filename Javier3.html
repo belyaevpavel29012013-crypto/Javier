@@ -1,0 +1,1783 @@
+```html
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Javier 2.0 — Professional JS Web IDE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root,[data-theme="dark"]{--bg:#1e1e1e;--panel:#252526;--active:#37373d;--hover:#2a2d2e;--text:#d4d4d4;--muted:#858585;--accent:#007acc;--accent2:#1e8fd1;--border:#3e3e42;--err:#f44747;--warn:#cca700;--ok:#4ec9b0;--input-bg:#1a1a1a;--card-bg:rgba(255,255,255,.03);--collab:#9333ea;--ai-accent:#10a37f;--star:#fbbf24}
+[data-theme="light"]{--bg:#fff;--panel:#f3f3f3;--active:#e0e0e0;--hover:#ebebeb;--text:#1e1e1e;--muted:#666;--accent:#0078d4;--accent2:#106ebe;--border:#d4d4d4;--err:#d13438;--warn:#8a6914;--ok:#107c10;--input-bg:#fff;--card-bg:rgba(0,0,0,.03);--collab:#9333ea;--ai-accent:#10a37f;--star:#f59e0b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100vh;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+.auth-screen{position:fixed;inset:0;z-index:2000;background:radial-gradient(ellipse at top,#1a2332,#0d1117 50%,#000);display:flex;align-items:center;justify-content:center;padding:20px;transition:opacity .5s;overflow-y:auto}
+.auth-screen.hidden{opacity:0;pointer-events:none}
+.auth-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.auth-logo{font-size:48px;font-weight:700;background:linear-gradient(135deg,#007acc,#4ec9b0,#569cd6);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;margin-bottom:4px}
+.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px;letter-spacing:2px;text-transform:uppercase}
+.auth-tabs{display:flex;background:var(--bg);border-radius:8px;padding:4px;margin-bottom:20px;border:1px solid var(--border)}
+.auth-tab{flex:1;background:none;border:none;color:var(--muted);padding:8px;cursor:pointer;border-radius:6px;font-size:13px;font-weight:500}
+.auth-tab.active{background:var(--accent);color:white}
+.auth-form{display:none}.auth-form.active{display:block}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.field input{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:6px;font-size:13px}
+.field input:focus{outline:none;border-color:var(--accent)}
+.auth-btn{width:100%;background:linear-gradient(135deg,#007acc,#1e8fd1);color:white;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
+.auth-msg{padding:10px 12px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none}
+.auth-msg.show{display:block}
+.auth-msg.error{background:rgba(244,71,71,.1);border-left:3px solid var(--err);color:var(--err)}
+.auth-msg.success{background:rgba(78,201,176,.1);border-left:3px solid var(--ok);color:var(--ok)}
+.guest-link{text-align:center;margin-top:16px;font-size:12px;color:var(--muted)}
+.guest-link a{color:var(--accent);cursor:pointer;text-decoration:underline}
+.landing{position:fixed;inset:0;z-index:1000;background:radial-gradient(ellipse at top,#1a2332,#0d1117 50%,#000);display:flex;align-items:flex-start;justify-content:center;transition:opacity .5s;overflow-y:auto;padding:40px 20px}
+.landing.hidden{opacity:0;pointer-events:none}
+.landing-content{max-width:1100px;width:100%;text-align:center}
+.logo-big{font-size:72px;font-weight:700;background:linear-gradient(135deg,#007acc,#4ec9b0,#569cd6);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px}
+.logo-sub{font-size:14px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.welcome-user{font-size:16px;color:var(--accent);margin-bottom:30px}
+.tagline{font-size:22px;margin-bottom:16px;font-weight:300}
+.desc{font-size:15px;color:var(--muted);max-width:600px;margin:0 auto 40px;line-height:1.6}
+.landing-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:50px}
+.btn-l{padding:14px 28px;border-radius:8px;border:none;font-size:15px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.btn-p{background:linear-gradient(135deg,#007acc,#1e8fd1);color:white;box-shadow:0 4px 20px rgba(0,122,204,.4)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,122,204,.6)}
+.btn-s{background:var(--card-bg);color:var(--text);border:1px solid var(--border)}
+.btn-s:hover{background:var(--hover);border-color:var(--accent)}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;text-align:left;margin-bottom:60px}
+.feature{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s}
+.feature:hover{background:var(--hover);transform:translateY(-3px);border-color:var(--accent)}
+.feat-icon{font-size:28px;margin-bottom:10px}
+.feat-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.feat-d{font-size:13px;color:var(--muted);line-height:1.5}
+.reviews-section{margin-top:60px;padding:40px 0;border-top:1px solid var(--border)}
+.reviews-header h2{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reviews-header p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.reviews-stats{display:flex;gap:20px;justify-content:center;margin-bottom:30px;flex-wrap:wrap}
+.review-stat{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 24px;min-width:140px}
+.review-stat-value{font-size:32px;font-weight:700;color:var(--star);margin-bottom:4px}
+.review-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;text-align:left;margin-bottom:30px}
+.review-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s}
+.review-card:hover{background:var(--hover);transform:translateY(-2px);border-color:var(--star)}
+.review-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.review-author{display:flex;align-items:center;gap:10px}
+.review-avatar{font-size:28px;width:40px;height:40px;background:var(--active);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.review-author-name{font-weight:600;font-size:13px}
+.review-author-date{font-size:11px;color:var(--muted)}
+.review-stars{color:var(--star);font-size:14px;letter-spacing:2px}
+.review-category{display:inline-block;padding:3px 10px;background:var(--active);border-radius:12px;font-size:10px;margin-bottom:10px;text-transform:uppercase}
+.review-text{font-size:13px;line-height:1.6}
+.review-edited{font-size:10px;color:var(--muted);font-style:italic;margin-top:6px}
+.review-cta{margin-top:30px}
+.review-cta-text{font-size:14px;color:var(--muted);margin-bottom:16px}
+.btn-review{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a;padding:14px 32px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(251,191,36,.3);transition:all .2s}
+.btn-review:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(251,191,36,.5)}
+.ide-root{display:flex;flex-direction:column;height:100vh;opacity:0;transition:opacity .5s}
+.ide-root.visible{opacity:1}
+header{height:42px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;justify-content:space-between}
+.logo{font-weight:600;letter-spacing:1px;color:var(--accent);font-size:15px;cursor:pointer}
+.menu-bar{display:flex;gap:4px;margin-left:20px}
+.menu-bar button{background:none;border:none;color:var(--text);padding:4px 10px;cursor:pointer;border-radius:3px;font-size:12px}
+.menu-bar button:hover{background:var(--active)}
+.actions{display:flex;gap:6px;align-items:center}
+.actions button{background:var(--accent);color:white;border:none;padding:5px 12px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;position:relative}
+.actions button:hover{background:var(--accent2)}
+.actions button.secondary{background:var(--active);color:var(--text)}
+.actions button.collab{background:var(--collab)}
+.actions button.ai{background:var(--ai-accent)}
+.actions button.feedback{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1a1a;font-weight:600}
+.actions button.gh{background:#24292e}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--err);color:white;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.profile-btn{background:var(--active) !important;color:var(--text) !important;display:flex;align-items:center;gap:6px;padding:4px 10px !important;border:none;border-radius:3px;cursor:pointer;font-size:12px;position:relative}
+.profile-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;min-width:220px;z-index:50;display:none;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.profile-menu.open{display:block}
+.profile-menu-header{padding:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.profile-menu-avatar{font-size:32px;width:44px;height:44px;background:var(--card-bg);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.profile-menu-info{flex:1;overflow:hidden}
+.profile-menu-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-menu-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-menu-item{padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px}
+.profile-menu-item:hover{background:var(--hover)}
+.profile-menu-item.danger{color:var(--err)}
+.profile-menu-divider{height:1px;background:var(--border);margin:4px 0}
+main{flex:1;display:grid;grid-template-columns:240px 1fr;grid-template-rows:1fr 200px;height:calc(100vh - 42px);transition:grid-template-columns .3s}
+main.ai-open{grid-template-columns:240px 1fr calc(50vw - 120px)} /* Настройка ширины на 50% рабочей области */
+.sidebar{background:var(--panel);border-right:1px solid var(--border);grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.side-tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border)}
+.side-tabs button{flex:1;background:none;border:none;color:var(--muted);padding:10px 8px;cursor:pointer;font-size:11px;text-transform:uppercase;border-bottom:2px solid transparent}
+.side-tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+.side-c{flex:1;overflow-y:auto;display:none}
+.side-c.active{display:block}
+.side-h{padding:8px 12px;font-size:11px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.ftree{padding:4px 0}
+.fitem{padding:5px 12px 5px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.fitem:hover{background:var(--hover)}
+.fitem.active{background:var(--active)}
+.fitem .del{opacity:0;color:var(--err);cursor:pointer;background:none;border:none;font-size:16px}
+.fitem:hover .del{opacity:.8}
+.setp{padding:12px}
+.setp input{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:6px 8px;margin-bottom:8px;border-radius:3px;font-size:12px}
+.setp label{font-size:12px;display:flex;align-items:center;gap:5px;margin-bottom:6px;cursor:pointer}
+.setp h4{font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.setp button{background:var(--active);color:var(--text);border:1px solid var(--border);padding:6px 10px;cursor:pointer;border-radius:3px;font-size:12px;margin-right:5px;margin-bottom:5px}
+.stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.stat span:last-child{color:var(--accent);font-weight:600}
+.editor-area{display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.tabs-bar{display:flex;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto;min-height:35px}
+.tabs-bar::-webkit-scrollbar{height:3px}
+.tabs-bar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tab{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--panel);border-right:1px solid var(--border);cursor:pointer;font-size:12px;min-width:120px;max-width:200px;position:relative;transition:background .15s}
+.tab:hover{background:var(--hover)}
+.tab.active{background:var(--bg);border-bottom:2px solid var(--accent)}
+.tab.modified::before{content:"";position:absolute;left:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--warn);border-radius:50%}
+.tab-icon{font-size:14px}
+.tab-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;border-radius:3px;opacity:0;transition:opacity .15s}
+.tab:hover .tab-close{opacity:1}
+.tab-close:hover{background:var(--err);color:white}
+#monaco-container{flex:1;overflow:hidden}
+.monaco-loading{flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.bp{grid-column:2;background:var(--panel);border-top:1px solid var(--border);display:flex;flex-direction:column}
+.btabs{display:flex;background:var(--active);padding:0 8px}
+.btabs button{background:none;border:none;color:var(--muted);padding:6px 12px;cursor:pointer;font-size:12px;border-bottom:2px solid transparent}
+.btabs button.active{color:var(--text);border-bottom-color:var(--accent)}
+.bc{flex:1;overflow:hidden;display:none}
+.bc.active{display:block}
+#con,#prf,#prb{height:100%;overflow-y:auto;padding:8px 12px}
+#con{font-family:Consolas,monospace;font-size:13px;line-height:1.4}
+.ll{padding:2px 0;border-bottom:1px solid rgba(128,128,128,.1)}
+.ll.log{color:var(--text)}.ll.warn{color:var(--warn)}.ll.error{color:var(--err)}.ll.info{color:var(--accent)}
+#prf{padding:0}
+#prf iframe{width:100%;height:100%;border:none;background:white}
+.ai-panel{grid-column:3;grid-row:1/3;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s;transform:translateX(100%)}
+.ai-panel.open{transform:translateX(0)}
+.ai-header{padding:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.ai-header h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin:0}
+.ai-header-actions{display:flex;gap:6px}
+.ai-header-actions button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px}
+.ai-header-actions button:hover{background:var(--hover);color:var(--text)}
+.ai-chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:95%;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.5;word-wrap:break-word}
+.ai-msg.user{background:var(--active);align-self:flex-end}
+.ai-msg.ai{background:var(--input-bg);align-self:flex-start;border:1px solid var(--border)}
+.ai-msg .role{font-size:11px;font-weight:600;margin-bottom:4px;color:var(--muted)}
+.ai-msg .role .badge{background:var(--ai-accent);color:white;padding:1px 6px;border-radius:3px;font-size:10px;margin-left:6px}
+.ai-msg pre{background:var(--bg);padding:10px;border-radius:4px;overflow-x:auto;margin:8px 0;font-size:12px;border:1px solid var(--border)}
+.ai-msg code{font-family:Consolas,monospace;white-space:pre-wrap}
+.ai-msg .ai-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.ai-msg .ai-actions button{background:var(--accent);color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px}
+.ai-msg .ai-actions button.secondary{background:var(--active);color:var(--text)}
+.ai-loading{display:flex;gap:4px;padding:8px;align-self:flex-start}
+.ai-loading div{width:6px;height:6px;background:var(--ai-accent);border-radius:50%;animation:aiBounce 1s infinite}
+.ai-loading div:nth-child(2){animation-delay:.2s}
+.ai-loading div:nth-child(3){animation-delay:.4s}
+@keyframes aiBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-6px);opacity:1}}
+.ai-modes{display:flex;gap:6px;padding:8px 12px;background:var(--input-bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow-x:auto}
+.ai-mode-btn{background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:11px;white-space:nowrap;transition:all .15s}
+.ai-mode-btn:hover{border-color:var(--ai-accent);color:var(--text)}
+.ai-mode-btn.active{background:var(--ai-accent);border-color:var(--ai-accent);color:white;font-weight:500}
+.ai-input-area{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end}
+.ai-input-area textarea{flex:1;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:8px;border-radius:6px;font-size:13px;resize:none;min-height:40px;max-height:120px;font-family:inherit}
+.ai-input-area textarea:focus{outline:none;border-color:var(--ai-accent)}
+.ai-send{background:var(--ai-accent);color:white;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ai-send:disabled{opacity:.5;cursor:not-allowed}
+.ai-welcome{text-align:center;padding:40px 20px;color:var(--muted)}
+.ai-welcome-icon{font-size:48px;margin-bottom:12px;opacity:.6}
+.ai-welcome h4{color:var(--text);margin-bottom:8px;font-size:15px}
+.ai-welcome p{font-size:12px;line-height:1.5;margin-bottom:16px}
+.ai-suggestions{display:flex;flex-direction:column;gap:6px}
+.ai-suggestion-btn{background:var(--input-bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;text-align:left}
+.ai-suggestion-btn:hover{border-color:var(--ai-accent);background:var(--hover)}
+.collab-status{position:fixed;top:50px;right:20px;background:var(--collab);color:white;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;z-index:90}
+.collab-status.active{display:flex}
+.collab-status .dot{width:8px;height:8px;background:white;border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+.mo.open{display:flex}
+.md{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:24px;min-width:420px;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.md h3{margin-bottom:15px;color:var(--accent)}
+.md input,.md textarea,.md select{width:100%;background:var(--input-bg);color:var(--text);border:1px solid var(--border);padding:8px;margin-bottom:10px;border-radius:3px;font-size:13px;font-family:inherit}
+.md textarea{min-height:80px;resize:vertical}
+.md label{display:block;font-size:12px;margin-bottom:4px;color:var(--muted)}
+.ma{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ma button{padding:6px 16px;border:none;border-radius:3px;cursor:pointer;font-size:13px}
+.ma .pri{background:var(--accent);color:white}
+.ma .sec{background:var(--active);color:var(--text)}
+.md .info{background:rgba(0,122,204,.1);border-left:3px solid var(--accent);padding:8px 12px;font-size:12px;margin-bottom:12px;border-radius:2px}
+.md .warn-box{background:rgba(204,167,0,.1);border-left:3px solid var(--warn);padding:8px 12px;font-size:12px;margin-bottom:12px;border-radius:2px}
+.md a{color:var(--accent)}
+.rating{display:flex;gap:4px;margin-bottom:12px;justify-content:center}
+.rating-star{font-size:32px;cursor:pointer;color:var(--border);transition:all .15s;user-select:none}
+.rating-star:hover,.rating-star.active{color:var(--star);transform:scale(1.1)}
+.rating-label{text-align:center;color:var(--muted);font-size:12px;margin-bottom:12px;min-height:18px}
+.feedback-categories{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.feedback-cat{padding:6px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:16px;cursor:pointer;font-size:12px;transition:all .15s}
+.feedback-cat:hover{border-color:var(--accent)}
+.feedback-cat.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.feedback-list{display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto}
+.feedback-item{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:12px}
+.feedback-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.feedback-item-stars{color:var(--star);font-size:14px}
+.feedback-item-meta{font-size:11px;color:var(--muted)}
+.feedback-item-cat{display:inline-block;padding:2px 8px;background:var(--active);border-radius:10px;font-size:10px;margin-left:6px}
+.feedback-item-text{font-size:13px;line-height:1.5}
+.feedback-item-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+.feedback-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.feedback-stat{background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center}
+.feedback-stat-value{font-size:24px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.feedback-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase}
+.collab-invite{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
+.collab-invite-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.collab-invite-from{display:flex;align-items:center;gap:8px;font-weight:600}
+.collab-invite-from .avatar{font-size:24px}
+.collab-invite-actions{display:flex;gap:6px;margin-top:8px}
+.collab-invite-actions button{flex:1;padding:6px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500}
+.collab-invite-actions .accept{background:var(--ok);color:white}
+.collab-invite-actions .decline{background:var(--err);color:white}
+.collab-users{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.collab-user{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;font-size:12px}
+.collab-user .avatar{font-size:20px}
+.stb{height:22px;background:var(--accent);color:white;display:flex;align-items:center;padding:0 12px;font-size:11px;justify-content:space-between}
+.stb .l,.stb .r{display:flex;gap:12px;align-items:center}
+.toast{position:fixed;bottom:40px;right:20px;background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);padding:10px 16px;border-radius:4px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:2000;animation:si .25s ease-out;max-width:400px;color:var(--text)}
+.toast.error{border-left-color:var(--err)}.toast.success{border-left-color:var(--ok)}
+@keyframes si{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media (max-width:768px){main{grid-template-columns:1fr;grid-template-rows:auto 1fr 200px}main.ai-open{grid-template-columns:1fr}.sidebar{grid-row:auto;max-height:200px;border-right:none;border-bottom:1px solid var(--border)}.bp{grid-column:1}.menu-bar{display:none}.logo-big{font-size:48px}.md{min-width:auto;margin:10px;max-width:calc(100vw - 20px)}.ai-panel{position:fixed;right:0;top:42px;bottom:0;width:100%;max-width:400px;z-index:50}.reviews-grid{grid-template-columns:1fr}.reviews-stats{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Javier 2.0</div>
+    <div class="auth-sub">Professional JS Web IDE</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth="login">Вход</button>
+      <button class="auth-tab" data-auth="register">Регистрация</button>
+    </div>
+    <div class="auth-msg" id="auth-msg"></div>
+    <form class="auth-form active" id="form-login" onsubmit="Auth.login(event)">
+      <div class="field"><label>Email</label><input type="email" id="login-email" required placeholder="you@example.com"/></div>
+      <div class="field"><label>Пароль</label><input type="password" id="login-password" required placeholder="Ваш пароль"/></div>
+      <button type="submit" class="auth-btn">Войти</button>
+    </form>
+    <form class="auth-form" id="form-register" onsubmit="Auth.register(event)">
+      <div class="field"><label>Имя</label><input type="text" id="reg-name" required minlength="2" maxlength="30" placeholder="Как вас зовут?"/></div>
+      <div class="field"><label>Email</label><input type="email" id="reg-email" required placeholder="you@example.com"/></div>
+      <div class="field"><label>Пароль</label><input type="password" id="reg-password" required minlength="6" placeholder="Минимум 6 символов"/></div>
+      <div class="field"><label>Повторите пароль</label><input type="password" id="reg-password2" required placeholder="Повторите пароль"/></div>
+      <button type="submit" class="auth-btn">Создать аккаунт</button>
+    </form>
+    <div class="guest-link">или <a onclick="Auth.asGuest()">войти как гость</a></div>
+  </div>
+</div>
+
+<div class="landing hidden" id="landing">
+  <div class="landing-content">
+    <div class="logo-big">Javier 2.0</div>
+    <div class="logo-sub">Professional JS Web IDE</div>
+    <div class="welcome-user" id="welcome-user"></div>
+    <div class="tagline">Monaco Editor • AI Coder • Коллаборация • Отзывы</div>
+    <div class="desc">Полноценная IDE в браузере: Monaco Editor, AI (DeepSeek, Groq, OpenAI, Claude, Gemini), коллаборация, GitHub и система отзывов.</div>
+    <div class="landing-actions">
+      <button class="btn-l btn-p" onclick="startIDE()">🚀 Начать работу</button>
+      <button class="btn-l btn-s" onclick="Feedback.openSubmit()">💬 Оставить отзыв</button>
+    </div>
+    <div class="features">
+      <div class="feature"><div class="feat-icon">⚡</div><div class="feat-t">Monaco Editor</div><div class="feat-d">Редактор уровня VS Code с автодополнением и folding.</div></div>
+      <div class="feature"><div class="feat-icon">🤖</div><div class="feat-t">5 AI провайдеров</div><div class="feat-d">DeepSeek, Groq, OpenAI, Claude, Gemini.</div></div>
+      <div class="feature"><div class="feat-icon">👥</div><div class="feat-t">Коллаборация</div><div class="feat-d">Работайте над кодом вместе в реальном времени.</div></div>
+      <div class="feature"><div class="feat-icon">💬</div><div class="feat-t">Отзывы</div><div class="feat-d">Делитесь мнением и помогайте улучшать Javier.</div></div>
+    </div>
+    <div class="reviews-section">
+      <div class="reviews-header">
+        <h2>⭐ Отзывы пользователей</h2>
+        <p>Что говорят разработчики о Javier IDE</p>
+      </div>
+      <div class="reviews-stats" id="reviews-stats">
+        <div class="review-stat"><div class="review-stat-value" id="stat-count">0</div><div class="review-stat-label">Отзывов</div></div>
+        <div class="review-stat"><div class="review-stat-value" id="stat-avg">0.0</div><div class="review-stat-label">Средняя оценка</div></div>
+        <div class="review-stat"><div class="review-stat-value" id="stat-5stars">0%</div><div class="review-stat-label">Рекомендуют</div></div>
+      </div>
+      <div class="reviews-grid" id="reviews-grid"></div>
+      <div class="review-cta">
+        <div class="review-cta-text">Поделитесь своим опытом использования Javier IDE</div>
+        <button class="btn-review" onclick="Feedback.openSubmit()">💬 Оставить отзыв</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ide-root" id="ide-root">
+  <header>
+    <div style="display:flex;align-items:center">
+      <div class="logo" onclick="showLanding()">⚡ Javier 2.0</div>
+      <div class="menu-bar">
+        <button onclick="Projects.open()">📁 Проекты</button>
+        <button onclick="A.newProject()">Новый</button>
+        <button onclick="A.importZip()">📥 Импорт</button>
+        <button onclick="A.exportZip()">📦 Экспорт</button>
+        <button onclick="Share.openProjectShareModal()">🔗 Поделиться</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" onclick="A.preview()">👁 Preview</button>
+      <button class="collab" onclick="Collab.open()" id="btn-collab">👥 Коллаборация<span class="notif-badge" id="collab-notif" style="display:none">0</span></button>
+      <button class="ai" onclick="AI.toggleChat()">🤖 AI</button>
+      <button class="feedback" onclick="Feedback.openSubmit()">💬 Отзыв</button>
+      <button class="gh" onclick="A.ghModal()">📤 GitHub</button>
+      <button class="secondary" onclick="AI.discuss()" title="Обсудить выделенный код с AI помощником">💬 Обсудить</button>
+      <button onclick="A.run()">▶ Запустить</button>
+      <div style="position:relative">
+        <button class="profile-btn" onclick="Profile.toggleMenu(event)">
+          <span id="hdr-avatar">👤</span>
+          <span id="hdr-name">User</span>
+          <span>▼</span>
+        </button>
+        <div class="profile-menu" id="profile-menu">
+          <div class="profile-menu-header">
+            <div class="profile-menu-avatar" id="menu-avatar">👤</div>
+            <div class="profile-menu-info">
+              <div class="profile-menu-name" id="menu-name">User</div>
+              <div class="profile-menu-email" id="menu-email">—</div>
+            </div>
+          </div>
+          <div class="profile-menu-item" onclick="Projects.open()">📁 Мои проекты</div>
+          <div class="profile-menu-item" onclick="Collab.open()">👥 Коллаборация</div>
+          <div class="profile-menu-item" onclick="AI.openSettings()">🤖 Настройки AI</div>
+          <div class="profile-menu-item" onclick="Feedback.openList()">⭐ Мои отзывы</div>
+          <div class="profile-menu-item" onclick="Profile.openSettings()">⚙️ Настройки</div>
+          <div class="profile-menu-divider"></div>
+          <div class="profile-menu-item danger" onclick="Auth.logout()">🚪 Выйти</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <aside class="sidebar">
+      <div class="side-tabs">
+        <button class="active" data-tab="files">Файлы</button>
+        <button data-tab="settings">Настройки</button>
+      </div>
+      <div class="side-c active" id="tab-files">
+        <div class="side-h"><span>Проект</span><button onclick="A.addFile()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:18px">+</button></div>
+        <div class="ftree" id="ftree"></div>
+      </div>
+      <div class="side-c" id="tab-settings">
+        <div class="setp">
+          <h4>🔑 GitHub Token</h4>
+          <input type="password" id="gh-tok" placeholder="Personal Access Token"/>
+          <button onclick="A.saveTok()">Сохранить</button>
+          <button onclick="A.clearTok()">Очистить</button>
+          <h4 style="margin-top:15px">📊 Статистика</h4>
+          <div id="stats"></div>
+          <h4 style="margin-top:15px">⚙️ IDE</h4>
+          <label><input type="checkbox" id="opt-as" checked onchange="S.options.autosave=this.checked;saveAll()"/> Автосохранение</label>
+          <button onclick="AI.openSettings()" style="margin-top:10px;background:var(--ai-accent);color:white;border:none;padding:8px 12px;border-radius:4px;cursor:pointer">🤖 Настройки AI-кодера</button>
+        </div>
+      </div>
+    </aside>
+    <section class="editor-area">
+      <div class="tabs-bar" id="tabs-bar"></div>
+      <div id="monaco-container"><div class="monaco-loading">⏳ Загрузка Monaco Editor...</div></div>
+    </section>
+    <section class="bp">
+      <div class="btabs">
+        <button class="active" data-tab="con">Консоль</button>
+        <button data-tab="prv">Preview</button>
+      </div>
+      <div class="bc active" id="btm-con"><div id="con"></div></div>
+      <div class="bc" id="btm-prv"><div id="prf"><iframe id="pvf" sandbox="allow-scripts allow-forms"></iframe></div></div>
+    </section>
+    <div class="ai-panel" id="ai-panel">
+      <div class="ai-header">
+        <h3>🤖 AI Coder</h3>
+        <div class="ai-header-actions">
+          <button onclick="AI.clearChat()" title="Очистить">🗑️</button>
+          <button onclick="AI.openSettings()" title="Настройки">⚙️</button>
+          <button onclick="AI.toggleChat()" title="Закрыть">✕</button>
+        </div>
+      </div>
+      <div class="ai-chat" id="ai-chat">
+        <div class="ai-welcome">
+          <div class="ai-welcome-icon">🤖</div>
+          <h4>AI-помощник готов</h4>
+          <p>Задайте вопрос или попросите написать код.</p>
+          <div class="ai-suggestions">
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Напиши функцию сортировки массива')">✨ Функция сортировки</button>
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Объясни этот код')">📖 Объясни код</button>
+            <button class="ai-suggestion-btn" onclick="AI.useSuggestion('Добавь обработку ошибок')">🛡️ Обработка ошибок</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-modes" id="ai-modes">
+        <button class="ai-mode-btn" data-mode="coder" onclick="AI.setMode('coder')" title="Ориентирован на написание чистого и быстрого кода">💻 Кодер</button>
+        <button class="ai-mode-btn" data-mode="thinker" onclick="AI.setMode('thinker')" title="Пошаговый логический анализ и разбор граничных случаев">🧠 Думающий</button>
+        <button class="ai-mode-btn" data-mode="architect" onclick="AI.setMode('architect')" title="Проектирование архитектуры, паттерны, структура файлов">📐 Архитектор</button>
+      </div>
+      <div class="ai-input-area">
+        <textarea id="ai-input" placeholder="Опишите задачу..." rows="1"></textarea>
+        <button class="ai-send" id="ai-send" onclick="AI.sendChat()">➤</button>
+      </div>
+    </div>
+  </main>
+  <div class="stb">
+    <div class="l">
+      <span>⚡ Javier 2.0</span>
+      <span id="s-file">main.js</span>
+      <span id="s-cur">Строка 1, Столбец 1</span>
+    </div>
+    <div class="r">
+      <span id="s-saved">✓ Сохранено</span>
+      <span id="s-lines">0 строк</span>
+      <span id="s-user">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="collab-status" id="collab-status">
+  <span class="dot"></span>
+  <span id="collab-status-text">Коллаборация активна</span>
+</div>
+
+<div class="mo" id="mo"><div class="md" id="mc"></div></div>
+<iframe id="sbx" sandbox="allow-scripts" style="none"></iframe>
+
+<script>
+const $ = id => document.getElementById(id);
+const S = { files: {}, active: 'main.js', openTabs: ['main.js'], options: { autosave: true }, currentProjectId: null, collabSession: null };
+const E = { ftree:$('ftree'),con:$('con'),mo:$('mo'),mc:$('mc'),pvf:$('pvf'),stats:$('stats'),ghtok:$('gh-tok'),sfile:$('s-file'),scur:$('s-cur'),ssaved:$('s-saved'),suser:$('s-user'),slines:$('s-lines'),landing:$('landing'),ide:$('ide-root'),main:$('main'),authScreen:$('auth-screen'),hdrAvatar:$('hdr-avatar'),hdrName:$('hdr-name'),menuAvatar:$('menu-avatar'),menuName:$('menu-name'),menuEmail:$('menu-email'),profileMenu:$('profile-menu'),welcomeUser:$('welcome-user'),aiPanel:$('ai-panel'),aiChat:$('ai-chat'),aiInput:$('ai-input'),aiSend:$('ai-send'),tabsBar:$('tabs-bar'),collabStatus:$('collab-status'),collabStatusText:$('collab-status-text'),collabNotif:$('collab-notif') };
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const toast = (msg, type='info', dur=3000) => { const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), dur); };
+const openMo = html => { E.mc.innerHTML = html; E.mo.classList.add('open'); };
+const closeMo = () => E.mo.classList.remove('open');
+E.mo.addEventListener('click', e => { if (e.target === E.mo) closeMo(); });
+
+// ============ MONACO EDITOR ============
+let monacoEditor = null, monacoReady = false;
+require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs' }});
+require(['vs/editor/editor.main'], function () {
+  monacoEditor = monaco.editor.create($('monaco-container'), {
+    value: '', language: 'javascript',
+    theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'vs' : 'vs-dark',
+    automaticLayout: true, fontSize: 14, minimap: { enabled: true },
+    wordWrap: 'on', scrollBeyondLastLine: false,
+    bracketPairColorization: { enabled: true },
+    suggest: { showIcons: true }, tabSize: 2, insertSpaces: true,
+    autoClosingBrackets: 'always', autoClosingQuotes: 'always',
+    autoIndent: 'full', folding: true, lineNumbers: 'on'
+  });
+  
+  // Добавление кастомного действия в контекстное меню (ПКМ) Monaco
+  monacoEditor.addAction({
+    id: 'discuss-code',
+    label: '💬 Обсудить код с AI',
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD
+    ],
+    precondition: null,
+    keybindingContext: null,
+    contextMenuGroupId: 'navigation',
+    contextMenuOrder: 1.5,
+    run: function(ed) {
+      AI.discuss();
+    }
+  });
+
+  monacoEditor.onDidChangeModelContent(() => {
+    if (!S.active) return;
+    S.files[S.active] = monacoEditor.getValue();
+    markTabModified(S.active, true);
+    if (S.options.autosave) {
+      clearTimeout(window._saveTimer);
+      window._saveTimer = setTimeout(() => { 
+        saveAll(); 
+        if (!window._collabSyncInProgress) {
+          Collab.broadcastUpdate(); 
+        }
+      }, 500);
+    }
+  });
+  monacoEditor.onDidChangeCursorPosition((e) => {
+    E.scur.textContent = `Строка ${e.position.lineNumber}, Столбец ${e.position.column}`;
+  });
+  monacoReady = true;
+  if (S.active && S.files[S.active] !== undefined) loadFile(S.active);
+  updateStats();
+  toast('Monaco Editor загружен', 'success', 2000);
+});
+
+function getLanguage(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  return { js:'javascript', jsx:'javascript', ts:'typescript', tsx:'typescript', html:'html', css:'css', json:'json', md:'markdown' }[ext] || 'plaintext';
+}
+
+function loadFile(name) {
+  if (!S.files[name] && S.files[name] !== '') S.files[name] = '';
+  S.active = name;
+  if (!S.openTabs.includes(name)) S.openTabs.push(name);
+  if (monacoReady && monacoEditor) {
+    const model = monaco.editor.createModel(S.files[name], getLanguage(name));
+    monacoEditor.setModel(model);
+  }
+  E.sfile.textContent = name;
+  E.slines.textContent = `${S.files[name].split('\n').length} строк`;
+  renderTree(); renderTabs(); markTabModified(name, false);
+  if (name.endsWith('.html')) { updPv(); btmTab('prv'); }
+}
+
+function closeTab(name, event) {
+  if (event) event.stopPropagation();
+  const idx = S.openTabs.indexOf(name);
+  if (idx === -1) return;
+  if (isTabModified(name) && !confirm(`Файл "${name}" не сохранён. Закрыть?`)) return;
+  S.openTabs.splice(idx, 1);
+  if (S.active === name) {
+    if (S.openTabs.length > 0) loadFile(S.openTabs[Math.max(0, idx - 1)]);
+    else { S.active = null; if (monacoReady) monacoEditor.setValue(''); E.sfile.textContent = '—'; }
+  }
+  renderTabs();
+}
+
+function isTabModified(name) { return document.querySelector(`.tab[data-file="${name}"]`)?.classList.contains('modified') || false; }
+function markTabModified(name, modified) { const tab = document.querySelector(`.tab[data-file="${name}"]`); if (tab) tab.classList.toggle('modified', modified); }
+
+function renderTabs() {
+  E.tabsBar.innerHTML = '';
+  S.openTabs.forEach(name => {
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (name === S.active ? ' active' : '');
+    tab.dataset.file = name;
+    const icon = fileIcon(name);
+    tab.innerHTML = `<span class="tab-icon">${icon}</span><span class="tab-name">${esc(name)}</span><button class="tab-close" title="Закрыть">×</button>`;
+    tab.onclick = () => { if (name !== S.active) loadFile(name); };
+    tab.querySelector('.tab-close').onclick = (e) => closeTab(name, e);
+    E.tabsBar.appendChild(tab);
+  });
+}
+
+// ============ AUTH ============
+const Auth = {
+  USERS_KEY: 'javier_users_v1', SESSION_KEY: 'javier_session_v1',
+  getUsers() { try { return JSON.parse(localStorage.getItem(this.USERS_KEY) || '{}'); } catch { return {}; } },
+  saveUsers(u) { localStorage.setItem(this.USERS_KEY, JSON.stringify(u)); },
+  getSession() { try { return JSON.parse(localStorage.getItem(this.SESSION_KEY) || 'null'); } catch { return null; } },
+  setSession(s) { if (s) localStorage.setItem(this.SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(this.SESSION_KEY); },
+  async hashPassword(pw, salt) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw + salt));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  },
+  randomSalt() { const arr = new Uint8Array(16); crypto.getRandomValues(arr); return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join(''); },
+  showMsg(msg, type='error') { const el = $('auth-msg'); el.textContent = msg; el.className = 'auth-msg show ' + type; },
+  hideMsg() { $('auth-msg').className = 'auth-msg'; },
+  async register(e) {
+    e.preventDefault(); this.hideMsg();
+    const name = $('reg-name').value.trim(), email = $('reg-email').value.trim().toLowerCase();
+    const pw = $('reg-password').value, pw2 = $('reg-password2').value;
+    if (name.length < 2) return this.showMsg('Имя слишком короткое');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.showMsg('Некорректный email');
+    if (pw.length < 6) return this.showMsg('Пароль минимум 6 символов');
+    if (pw !== pw2) return this.showMsg('Пароли не совпадают');
+    const users = this.getUsers();
+    if (users[email]) return this.showMsg('Email уже зарегистрирован');
+    const salt = this.randomSalt();
+    users[email] = { id: 'u_' + Date.now(), email, name, passwordHash: await this.hashPassword(pw, salt), salt, avatar: '👨‍💻', theme: 'dark', createdAt: Date.now() };
+    this.saveUsers(users); this.setSession({ email, loginAt: Date.now() });
+    this.showMsg('✓ Аккаунт создан!', 'success'); setTimeout(() => this.enterApp(), 800);
+  },
+  async login(e) {
+    e.preventDefault(); this.hideMsg();
+    const email = $('login-email').value.trim().toLowerCase(), pw = $('login-password').value;
+    const users = this.getUsers(), user = users[email];
+    if (!user) return this.showMsg('Пользователь не найден');
+    if (await this.hashPassword(pw, user.salt) !== user.passwordHash) return this.showMsg('Неверный пароль');
+    this.saveUsers(users); this.setSession({ email, loginAt: Date.now() });
+    this.showMsg('✓ Вход выполнен', 'success'); setTimeout(() => this.enterApp(), 400);
+  },
+  asGuest() { this.setSession({ email: '__guest__', isGuest: true }); this.enterApp(); },
+  logout() { if (!confirm('Выйти?')) return; this.setSession(null); location.reload(); },
+  enterApp() { E.authScreen.classList.add('hidden'); setTimeout(() => { E.landing.classList.remove('hidden'); Profile.refreshUI(); }, 400); },
+  getCurrentUser() {
+    const session = this.getSession(); if (!session) return null;
+    if (session.isGuest) return { email: '__guest__', name: 'Гость', avatar: '👻', theme: 'dark', isGuest: true };
+    return this.getUsers()[session.email] || null;
+  },
+  updateUser(updates) {
+    const session = this.getSession(); if (!session || session.isGuest) return;
+    const users = this.getUsers(); if (users[session.email]) { Object.assign(users[session.email], updates); this.saveUsers(users); Profile.refreshUI(); }
+  }
+};
+
+// ============ PROJECTS ============
+const Projects = {
+  getStorageKey() { const user = Auth.getCurrentUser(); if (!user) return null; return user.isGuest ? 'javier_projects_guest' : 'javier_projects_' + user.email; },
+  load() { const key = this.getStorageKey(); if (!key) return { projects: {}, activeId: null }; try { const d = JSON.parse(localStorage.getItem(key) || '{}'); return { projects: d.projects || {}, activeId: d.activeId || null }; } catch { return { projects: {}, activeId: null }; } },
+  save(d) { const key = this.getStorageKey(); if (!key) return; localStorage.setItem(key, JSON.stringify(d)); },
+  create(name, files = null) {
+    const data = this.load(), id = 'p_' + Date.now(), now = Date.now();
+    const project = { id, name: name || 'Новый проект', createdAt: now, updatedAt: now, files: files || { 'main.js': '// Javier 2.0\nconsole.log("Hello!");' }, activeFile: 'main.js', openTabs: ['main.js'], options: { autosave: true } };
+    data.projects[id] = project; data.activeId = id; this.save(data); return id;
+  },
+  switchTo(id) { const data = this.load(); if (!data.projects[id]) return false; this.saveCurrent(); data.activeId = id; this.save(data); this.loadProject(id); return true; },
+  saveCurrent() {
+    if (!S.currentProjectId || !monacoReady) return; const data = this.load(); if (!data.projects[S.currentProjectId]) return;
+    if (S.active && monacoEditor) S.files[S.active] = monacoEditor.getValue();
+    data.projects[S.currentProjectId].files = { ...S.files }; data.projects[S.currentProjectId].activeFile = S.active;
+    data.projects[S.currentProjectId].openTabs = [...S.openTabs];
+    data.projects[S.currentProjectId].options = { ...S.options }; data.projects[S.currentProjectId].updatedAt = Date.now(); this.save(data);
+  },
+  loadProject(id) {
+    const data = this.load(), project = data.projects[id]; if (!project) return false;
+    S.currentProjectId = id; S.files = { ...project.files }; S.active = project.activeFile || Object.keys(S.files)[0] || 'main.js';
+    S.openTabs = project.openTabs || [S.active];
+    S.options = project.options || { autosave: true };
+    $('opt-as').checked = S.options.autosave;
+    renderTree(); renderTabs(); loadFile(S.active);
+    if (project.isCollab) Collab.joinSession(id, project.collaborators || []); else Collab.leaveSession();
+    return true;
+  },
+  open() {
+    const data = this.load(); const projects = Object.values(data.projects).sort((a,b) => b.updatedAt - a.updatedAt);
+    const activeId = data.activeId;
+    const cardsHtml = projects.length === 0 ? `<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px">📁</div><div>Нет проектов</div></div>` : projects.map(p => `<div class="project-card" data-id="${p.id}" style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;${p.id === activeId ? 'border-color:var(--ok)' : ''}"><div style="font-size:32px;margin-bottom:10px">📦</div><div style="font-weight:600;font-size:14px">${esc(p.name)}</div><div style="font-size:11px;color:var(--muted);margin-top:8px">📄 ${Object.keys(p.files).length} файлов • 🕒 ${new Date(p.updatedAt).toLocaleDateString('ru')}</div></div>`).join('');
+    openMo(`<h3>📁 Мои проекты</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;max-height:60vh;overflow-y:auto">${cardsHtml}</div><div class="ma"><button class="sec" onclick="Projects.createPrompt()">+ Новый</button><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
+    document.querySelectorAll('.project-card').forEach(card => card.onclick = () => { if (Projects.switchTo(card.dataset.id)) { toast('Проект переключён', 'success', 1500); closeMo(); } });
+  },
+  createPrompt() { openMo(`<h3>✨ Новый проект</h3><label>Название:</label><input type="text" id="new-proj-name" placeholder="Мой проект" autofocus/><div class="ma"><button class="sec" onclick="Projects.open()">Отмена</button><button class="pri" onclick="Projects.doCreate()">Создать</button></div>`); setTimeout(() => $('new-proj-name').focus(), 100); },
+  doCreate() { const name = $('new-proj-name').value.trim() || 'Новый проект'; const id = Projects.create(name); Projects.switchTo(id); toast(`Проект "${name}" создан`, 'success'); closeMo(); }
+};
+
+// ============ COLLABORATION (WebRTC P2P + BroadcastChannel LOCAL Sync) ============
+const Collab = {
+  INVITES_KEY: 'javier_invites_v1',
+  channel: null,
+  peer: null,
+  connections: [],
+  connToHost: null,
+  isHost: false,
+
+  getInvites() { try { return JSON.parse(localStorage.getItem(this.INVITES_KEY) || '{}'); } catch { return {}; } },
+  saveInvites(i) { localStorage.setItem(this.INVITES_KEY, JSON.stringify(i)); },
+
+  open() {
+    E.profileMenu.classList.remove('open'); const user = Auth.getCurrentUser();
+    if (!user || user.isGuest) return toast('Коллаборация только для зарегистрированных', 'error');
+    const invites = this.getInvites(), incoming = invites[user.email] || [], outgoing = [];
+    Object.entries(invites).forEach(([email, invs]) => invs.forEach(inv => { if (inv.from === user.email) outgoing.push({ ...inv, to: email }); }));
+    
+    const incHtml = incoming.length === 0 ? '<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px">📭</div><div>Нет заявок</div></div>' : incoming.map((inv, i) => {
+      const isPending = inv.status === 'pending' || !inv.status;
+      const actionsHtml = isPending 
+        ? `<button class="accept" onclick="Collab.acceptInvite(${i})">✓ Принять</button><button class="decline" onclick="Collab.declineInvite(${i})">✗ Отклонить</button>`
+        : `<button class="accept" style="background:var(--accent)" onclick="Collab.connectToHostSession('${inv.from}', '${inv.projectId}', '${esc(inv.projectName)}')">🔌 Подключиться</button>
+           <button class="decline" onclick="Collab.declineInvite(${i})">🗑️ Удалить</button>`;
+      
+      return `<div class="collab-invite">
+        <div class="collab-invite-header">
+          <div class="collab-invite-from"><span class="avatar">${inv.fromAvatar || '👤'}</span><span>${esc(inv.fromName)}</span></div>
+          <div style="font-size:11px;color:var(--muted)">${new Date(inv.timestamp).toLocaleString('ru')}</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">В проект: <strong>${esc(inv.projectName)}</strong> (${inv.status === 'accepted' ? 'Принята' : 'Ожидание'})</div>
+        <div class="collab-invite-actions">${actionsHtml}</div>
+      </div>`;
+    }).join('');
+    
+    const outHtml = outgoing.length === 0 ? '<div style="color:var(--muted);font-size:12px;padding:10px">Нет отправленных</div>' : outgoing.map(inv => `<div style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:12px"><div style="font-weight:500">${esc(inv.to)}</div><div style="color:var(--muted);font-size:11px">${esc(inv.projectName)} • ${inv.status === 'accepted' ? '✓ Принято' : '⏳ Ожидание'}</div></div>`).join('');
+    
+    openMo(`
+      <h3>👥 Коллаборация (WebRTC P2P + Local Sync)</h3>
+      <div style="margin-bottom:20px;padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">
+        <h4 style="margin-bottom:6px;font-size:12px;color:var(--accent)">🔌 Прямое подключение по ID сессии</h4>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Отправьте свой ID проекта другу или введите ID чужого проекта, чтобы писать код вместе в реальном времени с разных компьютеров.</p>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+          <input type="text" id="direct-collab-id" placeholder="Вставьте ID проекта (например: p_1718...)" style="margin-bottom:0"/>
+          <button class="pri" style="padding:8px 16px;white-space:nowrap" onclick="Collab.connectToHostSession('', $('direct-collab-id').value.trim(), 'Удаленный проект')">🔌 Войти</button>
+        </div>
+        ${S.currentProjectId ? `
+          <div style="font-size:11px;color:var(--text);display:flex;justify-content:space-between;align-items:center">
+            <span>ID вашего активного проекта: <strong style="color:var(--ok)">${S.currentProjectId}</strong></span>
+            <button class="sec" style="padding:2px 8px;font-size:10px" onclick="navigator.clipboard.writeText('${S.currentProjectId}').then(()=>toast('ID скопирован','success'))">📋 Копировать ID</button>
+          </div>
+        ` : ''}
+      </div>
+
+      ${!S.collabSession ? `
+        <button class="pri" style="width:100%;margin-bottom:20px;background:var(--collab)" onclick="Collab.startHostSessionFromActive()">🚀 Включить Live-режим для этого проекта</button>
+      ` : ''}
+      
+      <div style="margin-bottom:20px">
+        <h4 style="margin-bottom:10px;font-size:13px">📩 Отправить приглашение по Email</h4>
+        <label>Email друга:</label>
+        <input type="email" id="collab-email" placeholder="user@example.com"/>
+        <div class="ma"><button class="pri" onclick="Collab.sendInvite()">📨 Отправить</button></div>
+      </div>
+      
+      <h4 style="margin-bottom:10px;font-size:13px">📥 Входящие приглашения (${incoming.length})</h4>
+      ${incHtml}
+      
+      <h4 style="margin:20px 0 10px;font-size:13px">📤 Отправленные приглашения (${outgoing.length})</h4>
+      ${outHtml}
+      
+      ${S.collabSession ? `
+        <div style="margin-top:20px;padding:12px;background:rgba(147,51,234,.1);border:1px solid var(--collab);border-radius:8px">
+          <div style="font-weight:600;margin-bottom:8px;color:var(--collab)">🟢 Активная сессия коллаборации</div>
+          <button style="background:var(--err);color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px" onclick="Collab.leaveSession()">Выйти из сессии</button>
+        </div>
+      ` : ''}
+      <div class="ma"><button class="pri" onclick="closeMo()">Закрыть</button></div>
+    `);
+  },
+
+  startHostSessionFromActive() {
+    closeMo();
+    if (!S.currentProjectId) return toast('Сначала откройте проект', 'error');
+    const data = Projects.load();
+    const p = data.projects[S.currentProjectId];
+    if (p) {
+      p.isCollab = true;
+      p.collaborators = p.collaborators || [];
+      Projects.save(data);
+    }
+    Collab.joinSession(S.currentProjectId, p ? p.collaborators : []);
+  },
+
+  sendInvite() {
+    const email = $('collab-email').value.trim().toLowerCase(); if (!email) return toast('Введите email', 'error');
+    const user = Auth.getCurrentUser(), users = Auth.getUsers(); if (!users[email]) return toast('Пользователь не найден', 'error');
+    if (email === user.email) return toast('Нельзя пригласить себя', 'error');
+    const data = Projects.load(), project = data.projects[S.currentProjectId]; if (!project) return toast('Нет проекта', 'error');
+    const invites = this.getInvites(); if (!invites[email]) invites[email] = [];
+    if (invites[email].some(inv => inv.from === user.email && inv.projectId === S.currentProjectId)) return toast('Заявка уже отправлена', 'error');
+    invites[email].push({ from: user.email, fromName: user.name, fromAvatar: user.avatar, projectId: S.currentProjectId, projectName: project.name, timestamp: Date.now(), status: 'pending' });
+    this.saveInvites(invites); toast(`Заявка отправлена ${users[email].name}`, 'success'); this.open();
+  },
+
+  acceptInvite(index) {
+    const user = Auth.getCurrentUser(), invites = this.getInvites(), incoming = invites[user.email]; if (!incoming || !incoming[index]) return;
+    const inv = incoming[index]; inv.status = 'accepted';
+    const ownerData = JSON.parse(localStorage.getItem('javier_projects_' + inv.from) || '{}');
+    if (ownerData.projects && ownerData.projects[inv.projectId]) {
+      const p = ownerData.projects[inv.projectId]; if (!p.collaborators) p.collaborators = [];
+      if (!p.collaborators.some(c => c.email === user.email)) { p.collaborators.push({ email: user.email, name: user.name, avatar: user.avatar }); p.isCollab = true; localStorage.setItem('javier_projects_' + inv.from, JSON.stringify(ownerData)); }
+    }
+    this.saveInvites(invites); toast('Заявка принята!', 'success'); this.open();
+  },
+
+  declineInvite(index) { const user = Auth.getCurrentUser(), invites = this.getInvites(); if (!invites[user.email]) return; invites[user.email].splice(index, 1); this.saveInvites(invites); toast('Заявка отклонена', 'success'); this.open(); },
+
+  joinSession(projectId, collaborators) {
+    const user = Auth.getCurrentUser(); if (!user || user.isGuest) return;
+    
+    Collab.leaveSession(); // Закрываем старые сессии
+    Collab.isHost = true;
+    Collab.connections = [];
+    S.collabSession = { projectId, users: [] };
+    
+    // Инициализируем локальный BroadcastChannel для синхронизации вкладок
+    Collab.channel = new BroadcastChannel('javier_collab_' + projectId);
+    Collab.channel.onmessage = (e) => {
+      const u = Auth.getCurrentUser();
+      if (u && e.data.from === u.email) return;
+      Collab.handleIncomingData(e.data, null);
+    };
+    
+    try {
+      Collab.peer = new Peer('javier_collab_room_' + projectId);
+      
+      Collab.peer.on('open', (id) => {
+        console.log('Хост WebRTC запущен:', id);
+        E.collabStatus.classList.add('active');
+        E.collabStatusText.textContent = `Хост-сессия активна. ID: ${projectId}`;
+        toast('Live-сессия коллаборации запущена', 'success');
+      });
+      
+      Collab.peer.on('connection', (conn) => {
+        Collab.connections.push(conn);
+        
+        conn.on('open', () => {
+          toast('Подключился новый разработчик', 'info');
+          conn.send({
+            type: 'init_state',
+            files: S.files,
+            activeFile: S.active
+          });
+        });
+        
+        conn.on('data', (data) => {
+          Collab.handleIncomingData(data, conn);
+        });
+        
+        conn.on('close', () => {
+          Collab.connections = Collab.connections.filter(c => c !== conn);
+          toast('Участник отключился', 'info');
+        });
+      });
+      
+      Collab.peer.on('error', (err) => {
+        console.error('PeerJS Host Error:', err);
+        if (err.type === 'unavailable-id') {
+          toast('Сессия коллаборации уже запущена в другой вкладке', 'warn');
+        } else {
+          toast('Ошибка WebRTC сессии', 'error');
+        }
+      });
+      
+    } catch (e) {
+      console.error(e);
+      toast('Ошибка запуска WebRTC', 'error');
+    }
+  },
+
+  connectToHostSession(hostEmail, projectId, projectName) {
+    closeMo();
+    const user = Auth.getCurrentUser(); if (!user || user.isGuest) return;
+    
+    Collab.leaveSession(); // Очищаем старые сокеты
+    Collab.isHost = false;
+    
+    S.currentProjectId = projectId;
+    S.active = 'main.js';
+    S.openTabs = ['main.js'];
+    S.files = { 'main.js': '// Подключение к сессии...\n' };
+    renderTree(); renderTabs(); loadFile(S.active);
+    
+    // Инициализируем локальный BroadcastChannel для синхронизации вкладок
+    Collab.channel = new BroadcastChannel('javier_collab_' + projectId);
+    Collab.channel.onmessage = (e) => {
+      const u = Auth.getCurrentUser();
+      if (u && e.data.from === u.email) return;
+      Collab.handleIncomingData(e.data, null);
+    };
+    
+    try {
+      Collab.peer = new Peer();
+      
+      Collab.peer.on('open', (guestId) => {
+        console.log('Гостевой пир WebRTC запущен:', guestId);
+        toast('Попытка соединения с хостом...', 'info');
+        
+        const conn = Collab.peer.connect('javier_collab_room_' + projectId);
+        Collab.connToHost = conn;
+        
+        conn.on('open', () => {
+          S.collabSession = { projectId, users: [] };
+          E.collabStatus.classList.add('active');
+          E.collabStatusText.textContent = `Подключено к: ${projectName}`;
+          toast('Подключение установлено успешно!', 'success');
+        });
+        
+        conn.on('data', (data) => {
+          Collab.handleIncomingData(data, conn);
+        });
+        
+        conn.on('close', () => {
+          E.collabStatus.classList.remove('active');
+          S.collabSession = null;
+          toast('Сессия закрыта создателем проекта', 'error');
+        });
+        
+        conn.on('error', (err) => {
+          console.error(err);
+          toast('Не удалось соединиться с проектом', 'error');
+        });
+      });
+      
+      Collab.peer.on('error', (err) => {
+        console.error(err);
+        toast('Ошибка гостевого пира', 'error');
+      });
+      
+    } catch (e) {
+      console.error(e);
+      toast('Ошибка подключения к сессии', 'error');
+    }
+  },
+
+  handleIncomingData(data, conn) {
+    if (data.type === 'init_state' || data.type === 'update') {
+      if (JSON.stringify(S.files) === JSON.stringify(data.files) && S.active === data.activeFile) {
+        return; // Нет изменений
+      }
+      
+      S.files = data.files;
+      S.active = data.activeFile;
+      if (!S.openTabs.includes(S.active)) S.openTabs.push(S.active);
+      
+      if (monacoReady && monacoEditor) {
+        const currentVal = monacoEditor.getValue();
+        if (currentVal !== S.files[S.active]) {
+          // Блокируем триггер изменения, чтобы не отправлять обновление повторно
+          window._collabSyncInProgress = true;
+          const state = monacoEditor.saveViewState();
+          monacoEditor.setValue(S.files[S.active] || '');
+          monacoEditor.restoreViewState(state);
+          window._collabSyncInProgress = false;
+        }
+      }
+      
+      renderTree();
+      renderTabs();
+      E.sfile.textContent = S.active;
+      
+      if (data.type === 'update' && data.userName) {
+        toast(`${data.userName} обновил код`, 'info', 1500);
+      }
+      
+      // Если мы хост, ретранслируем обновление другим подключенным гостям
+      if (Collab.isHost) {
+        Collab.connections.forEach(c => {
+          if (c !== conn && c.open) {
+            c.send({
+              type: 'update',
+              userName: data.userName,
+              files: S.files,
+              activeFile: S.active
+            });
+          }
+        });
+      }
+    }
+  },
+
+  leaveSession() {
+    if (Collab.channel) {
+      Collab.channel.close();
+      Collab.channel = null;
+    }
+    if (Collab.connToHost) {
+      Collab.connToHost.close();
+      Collab.connToHost = null;
+    }
+    if (Collab.connections && Collab.connections.length > 0) {
+      Collab.connections.forEach(c => c.close());
+      Collab.connections = [];
+    }
+    if (Collab.peer) {
+      Collab.peer.destroy();
+      Collab.peer = null;
+    }
+    Collab.isHost = false;
+    S.collabSession = null;
+    E.collabStatus.classList.remove('active');
+  },
+
+  broadcastUpdate() {
+    const user = Auth.getCurrentUser();
+    if (!user) return;
+    
+    const payload = {
+      type: 'update',
+      userName: user.name,
+      files: S.files,
+      activeFile: S.active,
+      from: user.email
+    };
+    
+    // Отправляем локально (в другие вкладки)
+    if (Collab.channel) {
+      Collab.channel.postMessage(payload);
+    }
+    
+    // Отправляем удаленно (WebRTC)
+    if (Collab.isHost) {
+      Collab.connections.forEach(c => {
+        if (c.open) c.send(payload);
+      });
+    } else if (Collab.connToHost && Collab.connToHost.open) {
+      Collab.connToHost.send(payload);
+    }
+  },
+
+  checkNotifications() { const user = Auth.getCurrentUser(); if (!user || user.isGuest) return; const invites = this.getInvites(), incoming = invites[user.email] || []; const pending = incoming.filter(inv => inv.status === 'pending').length; if (pending > 0) { E.collabNotif.style.display = 'flex'; E.collabNotif.textContent = pending; } else { E.collabNotif.style.display = 'none'; } }
+};
+
+// ============ SHARE ============
+function encodeProject(files) {
+  try {
+    const json = JSON.stringify(files);
+    if (typeof pako !== 'undefined') {
+      const c = pako.deflate(json, { level: 9 });
+      let b = ''; c.forEach(x => b += String.fromCharCode(x));
+      return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    const bytes = new TextEncoder().encode(json);
+    let b = ''; bytes.forEach(x => b += String.fromCharCode(x));
+    return 'R' + btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  } catch(e) { return null; }
+}
+function decodeProject(enc) {
+  try {
+    if (enc.startsWith('R')) {
+      let s = enc.substring(1).replace(/-/g,'+').replace(/_/g,'/');
+      while (s.length % 4) s += '=';
+      const bin = atob(s); const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+    let b64 = enc.replace(/-/g,'+').replace(/_/g,'/');
+    while (b64.length % 4) b64 += '=';
+    const bin = atob(b64); const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return JSON.parse(pako.inflate(bytes, { to: 'string' }));
+  } catch(e) { return null; }
+}
+const Share = {
+  openStudioShareModal() {
+    const url = location.origin + location.pathname;
+    openMo(`<h3>🔗 Поделиться студией</h3><textarea readonly onclick="this.select()" style="height:80px;font-size:11px">${url}</textarea><div class="ma"><button class="sec" onclick="navigator.clipboard.writeText('${url}').then(()=>toast('Скопировано','success'))">📋 Копировать</button><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
+  },
+  openProjectShareModal() {
+    if (monacoReady && S.active) S.files[S.active] = monacoEditor.getValue();
+    const enc = encodeProject(S.files);
+    if (!enc) return toast('Ошибка', 'error');
+    const url = location.origin + location.pathname + '#p=' + enc;
+    openMo(`<h3>🔗 Ссылка готова</h3>${url.length > 8000 ? `<div class="warn-box">⚠️ Ссылка длинная (${url.length} символов)</div>` : ''}<textarea readonly onclick="this.select()" style="height:100px;font-size:11px">${url}</textarea><div class="ma"><button class="sec" onclick="navigator.clipboard.writeText(\`${url}\`).then(()=>toast('Скопировано','success'))">📋 Копировать</button><button class="pri" onclick="closeMo()">Закрыть</button></div>`);
+  }
+};
+
+// ============ AI (5 ПРОВАЙДЕРОВ: DeepSeek, Groq, OpenAI, Claude, Gemini - UPDATED 2026 WITH GEMINI 3.5 THINKING) ============
+const AI = {
+  key: localStorage.getItem('javier_ai_key') || '',
+  provider: localStorage.getItem('javier_ai_provider') || 'deepseek',
+  model: localStorage.getItem('javier_ai_model') || 'deepseek-v4-pro',
+  mode: localStorage.getItem('javier_ai_mode') || 'coder',
+  chatOpen: false, chatHistory: [], isLoadingChat: false,
+  
+  PROVIDERS: {
+    deepseek: {
+      name: 'DeepSeek', emoji: '🇨🇳',
+      url: 'https://api.deepseek.com/chat/completions',
+      models: [
+        { id: 'deepseek-v4-pro', name: '⭐ DeepSeek V4 Pro (Флагман)' },
+        { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash (Быстрый)' },
+        { id: 'deepseek-reasoner', name: 'DeepSeek R1 (Рассуждения / Reasoning)' },
+        { id: 'deepseek-chat', name: 'DeepSeek Chat (Классическая)' },
+        { id: 'deepseek-coder', name: 'DeepSeek Coder (Классическая)' }
+      ],
+      getInfo: () => '🇨🇳 <strong>Рекомендуется для РФ!</strong> Стабильно работает напрямую. <a href="https://platform.deepseek.com/" target="_blank">platform.deepseek.com</a>'
+    },
+    groq: {
+      name: 'Groq', emoji: '⚡',
+      url: 'https://api.groq.com/openai/v1/chat/completions',
+      models: [
+        { id: 'llama-3.3-70b-versatile', name: '⭐ Llama 3.3 70B (Универсальная)' },
+        { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B (Ультра-быстрая)' },
+        { id: 'deepseek-r1-distill-llama-70b', name: 'DeepSeek R1 Distill Llama 70B' }
+      ],
+      getInfo: () => '⚡ <strong>Бесплатно!</strong> Высочайшая скорость благодаря чипам LPU. <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a>'
+    },
+    openai: {
+      name: 'OpenAI', emoji: '🟢',
+      url: 'https://api.openai.com/v1/chat/completions',
+      models: [
+        { id: 'gpt-5.5', name: '⭐ GPT-5.5 (Новый Флагман)' },
+        { id: 'gpt-5-mini', name: 'GPT-5 Mini (Легковесная)' },
+        { id: 'o3-mini', name: 'o3-mini (Мышление / Рассуждения)' },
+        { id: 'gpt-4o', name: 'GPT-4o (Классическая)' },
+        { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Классическая)' },
+        { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo (Классическая)' }
+      ],
+      getInfo: () => '🟢 Премиальное семейство моделей OpenAI GPT-5 и o-серии. <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
+    },
+    claude: {
+      name: 'Claude', emoji: '🟠',
+      url: 'https://api.anthropic.com/v1/messages',
+      models: [
+        { id: 'claude-fable-5', name: '⭐ Claude Fable 5 (Флагман 2026)' },
+        { id: 'claude-4-sonnet-20250514', name: 'Claude 4 Sonnet (Кодинг)' },
+        { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet (Гибридное мышление)' },
+        { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet' },
+        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (2024)' },
+        { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
+        { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' }
+      ],
+      getInfo: () => '🟠 <strong>Anthropic Claude</strong>. Модели 4 и 5 поколений. ⚠️ Может заблокироваться браузером по CORS. <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>'
+    },
+    gemini: {
+      name: 'Gemini', emoji: '💎',
+      url: 'https://generativelanguage.googleapis.com/v1beta',
+      models: [
+        { id: 'gemini-3.5-flash', name: '⭐ Gemini 3.5 Flash (Думающая / Thinking)' },
+        { id: 'gemini-3.5-pro', name: 'Gemini 3.5 Pro (Думающая / Heavy Reasoning)' },
+        { id: 'gemini-3.1-pro', name: 'Gemini 3.1 Pro (Advanced Reasoning)' },
+        { id: 'gemini-2.0-flash-thinking-exp', name: '🧠 Gemini 2.0 Flash Thinking' },
+        { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro (Стабильная)' },
+        { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+        { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash' },
+        { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+        { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' }
+      ],
+      getInfo: () => '💎 <strong>Google Gemini</strong>. Поддерживает быстрые и логически рассуждающие (Thinking) модели. ⚠️ Может потребоваться CORS-прокси. <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>'
+    }
+  },
+
+  init() {
+    if (!this.PROVIDERS[this.provider]) this.provider = 'deepseek';
+    const currentProv = this.PROVIDERS[this.provider];
+    const modelExists = currentProv.models.some(m => m.id === this.model);
+    if (!modelExists && currentProv.models.length > 0) {
+      this.model = currentProv.models[0].id;
+    }
+    this.mode = localStorage.getItem('javier_ai_mode') || 'coder';
+    document.querySelectorAll('.ai-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === this.mode);
+    });
+  },
+
+  setMode(mode) {
+    this.mode = mode;
+    localStorage.setItem('javier_ai_mode', mode);
+    document.querySelectorAll('.ai-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    const labels = { coder: 'Кодер', thinker: 'Думающий', architect: 'Архитектор' };
+    toast(`Режим AI: ${labels[mode]}`, 'info', 1500);
+  },
+  
+  toggleChat() {
+    this.chatOpen = !this.chatOpen;
+    E.aiPanel.classList.toggle('open', this.chatOpen);
+    E.main.classList.toggle('ai-open', this.chatOpen);
+    if (this.chatOpen) { E.aiInput.focus(); if (!this.key) setTimeout(() => this.openSettings(), 300); }
+    setTimeout(() => monacoEditor && monacoEditor.layout(), 350);
+  },
+
+  discuss() {
+    if (!monacoReady || !monacoEditor) {
+      return toast('Редактор не готов', 'error');
+    }
+    const model = monacoEditor.getModel();
+    const selection = monacoEditor.getSelection();
+    let selectedText = '';
+    
+    if (selection && !selection.isEmpty()) {
+      selectedText = model.getValueInRange(selection);
+    } else {
+      selectedText = monacoEditor.getValue();
+    }
+
+    if (!selectedText.trim()) {
+      return toast('Нет кода для обсуждения', 'error');
+    }
+
+    if (!this.chatOpen) {
+      this.toggleChat();
+    }
+
+    E.aiInput.value = `Давай обсудим этот фрагмент кода:\n\n\`\`\`javascript\n${selectedText}\n\`\`\`\n\nЧто здесь можно улучшить, оптимизировать или исправить?`;
+    
+    E.aiInput.style.height = 'auto';
+    E.aiInput.style.height = Math.min(120, E.aiInput.scrollHeight) + 'px';
+    
+    E.aiInput.focus();
+    toast('Код добавлен в чат для обсуждения. Нажмите ➤ для отправки.', 'success');
+  },
+  
+  openSettings() {
+    E.profileMenu.classList.remove('open');
+    const currentProv = this.PROVIDERS[this.provider] || this.PROVIDERS.deepseek;
+    const modelsHtml = currentProv.models.map(m => `<option value="${m.id}" ${this.model === m.id ? 'selected' : ''}>${m.name}</option>`).join('');
+    const providersHtml = Object.entries(this.PROVIDERS).map(([key, p]) => 
+      `<option value="${key}" ${this.provider === key ? 'selected' : ''}>${p.emoji} ${p.name}</option>`
+    ).join('');
+    
+    openMo(`
+      <h3>🤖 Настройки AI-кодера</h3>
+      <div class="info">
+        <strong>💡 Рекомендуем DeepSeek или Groq</strong> — работают напрямую из браузера.<br>
+        Claude и Gemini могут блокироваться политиками CORS на стороне API.
+      </div>
+      <label>Провайдер:</label>
+      <select id="ai-provider" onchange="AI.onProviderChange()">${providersHtml}</select>
+      <div id="provider-info" style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--input-bg);border-radius:4px">${currentProv.getInfo()}</div>
+      <label>API-ключ:</label>
+      <input type="password" id="ai-key" value="${this.key}" placeholder="Вставьте API-ключ"/>
+      <label>Модель:</label>
+      <select id="ai-model">${modelsHtml}</select>
+      <div class="ma"><button class="sec" onclick="closeMo()">Отмена</button><button class="pri" onclick="AI.saveSettings()">💾 Сохранить</button></div>
+    `);
+  },
+  
+  onProviderChange() {
+    const provider = $('ai-provider').value;
+    const prov = this.PROVIDERS[provider];
+    $('ai-model').innerHTML = prov.models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    $('provider-info').innerHTML = prov.getInfo();
+  },
+  
+  saveSettings() {
+    this.key = $('ai-key').value.trim();
+    this.provider = $('ai-provider').value;
+    this.model = $('ai-model').value;
+    localStorage.setItem('javier_ai_key', this.key);
+    localStorage.setItem('javier_ai_provider', this.provider);
+    localStorage.setItem('javier_ai_model', this.model);
+    closeMo(); toast('Настройки AI сохранены', 'success');
+  },
+  
+  clearChat() { if (!confirm('Очистить историю?')) return; this.chatHistory = []; E.aiChat.innerHTML = this.getWelcomeHTML(); toast('Чат очищен', 'success'); },
+  
+  getWelcomeHTML() {
+    return `<div class="ai-welcome"><div class="ai-welcome-icon">🤖</div><h4>AI-помощник готов</h4><p>Задайте вопрос или попросите написать код.</p><div class="ai-suggestions"><button class="ai-suggestion-btn" onclick="AI.useSuggestion('Напиши функцию сортировки массива')">✨ Функция сортировки</button><button class="ai-suggestion-btn" onclick="AI.useSuggestion('Объясни этот код')">📖 Объясни код</button><button class="ai-suggestion-btn" onclick="AI.useSuggestion('Добавь обработку ошибок')">🛡️ Обработка ошибок</button></div></div>`;
+  },
+  
+  useSuggestion(text) { E.aiInput.value = text; E.aiInput.focus(); },
+  
+  formatContent(text) {
+    let html = esc(text);
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
+    html = html.replace(/`([^`\n]+)`/g, '<code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:12px">$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  },
+  
+  addChatMsg(role, content) {
+    const welcome = E.aiChat.querySelector('.ai-welcome');
+    if (welcome) welcome.remove();
+    const div = document.createElement('div');
+    div.className = `ai-msg ${role}`;
+    const contentHtml = this.formatContent(content);
+    if (role === 'user') {
+      div.innerHTML = `<div class="role">👤 Вы</div><div>${contentHtml}</div>`;
+    } else {
+      const prov = this.PROVIDERS[this.provider];
+      const provName = prov ? `${prov.emoji} ${prov.name}` : 'AI';
+      div.innerHTML = `<div class="role">🤖 AI <span class="badge">${provName}</span></div><div>${contentHtml}</div><div class="ai-actions"><button onclick="AI.copyMsgCode(this)">📋 Копировать</button><button class="secondary" onclick="AI.insertMsgCode(this)">📝 Вставить</button></div>`;
+    }
+    E.aiChat.appendChild(div);
+    E.aiChat.scrollTop = E.aiChat.scrollHeight;
+  },
+  
+  showChatLoading(show) {
+    const existing = E.aiChat.querySelector('.ai-loading');
+    if (existing) existing.remove();
+    if (show) { const div = document.createElement('div'); div.className = 'ai-loading'; div.innerHTML = '<div></div><div></div><div></div>'; E.aiChat.appendChild(div); E.aiChat.scrollTop = E.aiChat.scrollHeight; }
+  },
+  
+  async callAPI(systemPrompt, userMessages, maxTokens = 2000, temperature = 0.7) {
+    const prov = this.PROVIDERS[this.provider];
+    if (!prov) throw new Error('Провайдер не настроен');
+    
+    try {
+      if (['deepseek', 'groq', 'openai'].includes(this.provider)) {
+        const messages = [{ role: 'system', content: systemPrompt }, ...userMessages];
+        const res = await fetch(prov.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.key}` },
+          body: JSON.stringify({ model: this.model, messages, max_tokens: maxTokens, temperature })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        return data.choices[0].message.content;
+      }
+      
+      else if (this.provider === 'claude') {
+        const res = await fetch(prov.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': this.key,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: this.model,
+            max_tokens: maxTokens,
+            system: systemPrompt,
+            messages: userMessages,
+            temperature: temperature
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        return data.content[0].text;
+      }
+      
+      else if (this.provider === 'gemini') {
+        const url = `${prov.url}/models/${this.model}:generateContent?key=${this.key}`;
+        const contents = userMessages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }));
+        
+        // Настройка уровня размышлений (Thinking Config) для моделей Gemini 3+
+        const config = {
+          maxOutputTokens: maxTokens,
+          temperature: temperature
+        };
+        
+        // Устанавливаем высокий уровень рассуждений для глубоких задач
+        if (this.model.startsWith('gemini-3.5') || this.model.startsWith('gemini-3.1')) {
+          config.thinkingConfig = {
+            thinkingLevel: "high"
+          };
+        }
+        
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: contents,
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            generationConfig: config
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        return data.candidates[0].content.parts[0].text;
+      }
+      
+      throw new Error('Неизвестный провайдер');
+    } catch (networkErr) {
+      if (networkErr.message.includes('Failed to fetch') || networkErr.name === 'TypeError') {
+        throw new Error(`Сетевая ошибка. Возможно, ${prov.name} блокирует запросы со сторонних сайтов (CORS). Попробуйте DeepSeek или Groq.`);
+      }
+      throw networkErr;
+    }
+  },
+  
+  async sendChat() {
+    const prompt = E.aiInput.value.trim();
+    if (!prompt || this.isLoadingChat) return;
+    if (!this.key) { toast('Настройте API-ключ', 'error'); this.openSettings(); return; }
+    E.aiInput.value = ''; E.aiInput.style.height = '40px';
+    this.isLoadingChat = true; E.aiSend.disabled = true;
+    this.addChatMsg('user', prompt);
+    this.showChatLoading(true);
+    
+    const currentFile = monacoReady ? monacoEditor.getValue() : (S.files[S.active] || '');
+    let systemMsg = `Ты профессиональный JS-разработчик в Javier IDE. Отвечай кратко, код оборачивай в \`\`\`javascript. Пиши на русском.\n\nФайл "${S.active}":\n\`\`\`\n${currentFile}\n\`\`\``;
+    
+    if (this.mode === 'thinker') {
+      systemMsg += `\n\n[РЕЖИМ: ДУМАЮЩИЙ / РАССУЖДЕНИЕ]
+Ты должен провести глубокий логический пошаговый анализ задачи перед написанием какого-либо кода:
+1. Начни свой ответ с детального анализа проблемы и вариантов её решения.
+2. Обязательно выдели возможные пограничные случаи (edge cases), уязвимости и потенциальные баги.
+3. Опиши логику выбора решения пошагово, объясняя "почему" сделан такой выбор.
+4. Выведи готовый оптимизированный код в самом конце ответа.`;
+    } else if (this.mode === 'architect') {
+      systemMsg += `\n\n[РЕЖИМ: АРХИТЕКТОР]
+Ты должен спроектировать масштабируемую, чистую и модульную архитектуру решения:
+1. Оценивай структуру приложения в целом, руководствуясь принципом разделения ответственности (Separation of Concerns).
+2. Предлагай и используй паттерны проектирования (ООП, модули, шины событий, MVC), подходящие для веб-разработки на JS/TS.
+3. Опиши логическую структуру компонентов, файлов и интерфейсов взаимодействия (API) перед написанием кода.
+4. Напиши образцовый, чистый и расширяемый модульный код.`;
+    } else {
+      systemMsg += `\n\n[РЕЖИМ: КОДЕР / РАЗРАБОТЧИК]
+Ты должен написать максимально практичный, чистый, быстрый и готовый к запуску код:
+1. Будь предельно лаконичен во вводных объяснениях и теории — пиши код сразу.
+2. Снабжай сложные или неочевидные участки кода краткими комментариями.
+3. Избегай долгих рассуждений, фокусируйся на точечном решении конкретной проблемы или исправлении бага.`;
+    }
+    
+    const userMessages = [];
+    this.chatHistory.slice(-10).forEach(msg => userMessages.push(msg));
+    userMessages.push({ role: 'user', content: prompt });
+    
+    try {
+      const reply = await this.callAPI(systemMsg, userMessages, 2000, 0.7);
+      this.showChatLoading(false);
+      this.addChatMsg('ai', reply);
+      this.chatHistory.push({ role: 'user', content: prompt });
+      this.chatHistory.push({ role: 'assistant', content: reply });
+      if (this.chatHistory.length > 20) this.chatHistory = this.chatHistory.slice(-20);
+    } catch (err) {
+      this.showChatLoading(false);
+      this.addChatMsg('ai', `⚠️ Ошибка:\n\n${err.message}\n\n💡 Если это CORS-ошибка — попробуйте DeepSeek или Groq, они работают стабильно.`);
+    } finally {
+      this.isLoadingChat = false; E.aiSend.disabled = false; E.aiInput.focus();
+    }
+  },
+  
+  copyMsgCode(btn) {
+    const msg = btn.closest('.ai-msg');
+    const pre = msg.querySelector('pre');
+    const text = pre ? pre.textContent.trim() : msg.querySelector('div:nth-child(2)').textContent;
+    navigator.clipboard.writeText(text);
+    toast(pre ? 'Код скопирован' : 'Текст скопирован', 'success');
+  },
+  
+  insertMsgCode(btn) {
+    const pre = btn.closest('.ai-msg').querySelector('pre');
+    if (!pre) return toast('Нет блока кода', 'error');
+    const code = pre.textContent.trim();
+    if (!monacoReady) return toast('Monaco не загружен', 'error');
+    const position = monacoEditor.getPosition();
+    monacoEditor.executeEdits('ai-insert', [{
+      range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+      text: '\n' + code + '\n', forceMoveMarkers: true
+    }]);
+    monacoEditor.focus();
+    toast('Код вставлен', 'success');
+  }
+};
+
+// ============ FEEDBACK ============
+const Feedback = {
+  KEY: 'javier_feedback_v1',
+  getAll() { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
+  save(feedback) { const all = this.getAll(); all.push(feedback); localStorage.setItem(this.KEY, JSON.stringify(all)); },
+  update(id, newData) {
+    const all = this.getAll();
+    const index = all.findIndex(f => f.id === id);
+    if (index === -1) return false;
+    all[index] = { ...all[index], ...newData, editedAt: Date.now(), isEdited: true };
+    localStorage.setItem(this.KEY, JSON.stringify(all));
+    return true;
+  },
+  delete(id) { localStorage.setItem(this.KEY, JSON.stringify(this.getAll().filter(f => f.id !== id))); },
+  getStats() {
+    const all = this.getAll();
+    if (all.length === 0) return { count: 0, avg: 0, categories: {}, recommend: 0 };
+    const avg = all.reduce((s, f) => s + f.rating, 0) / all.length;
+    const categories = {};
+    all.forEach(f => { categories[f.category] = (categories[f.category] || 0) + 1; });
+    const recommend = Math.round((all.filter(f => f.rating >= 4).length / all.length) * 100);
+    return { count: all.length, avg: avg.toFixed(1), categories, recommend };
+  },
+  openSubmit(editId = null) {
+    E.profileMenu.classList.remove('open');
+    const user = Auth.getCurrentUser();
+    const defaultEmail = user && !user.isGuest ? user.email : '';
+    let existingFeedback = null;
+    if (editId) {
+      existingFeedback = this.getAll().find(f => f.id === editId);
+      if (!existingFeedback) { toast('Отзыв не найден', 'error'); return; }
+    }
+    const title = editId ? '✏️ Редактировать отзыв' : '💬 Оставить отзыв';
+    const submitBtnText = editId ? '💾 Сохранить' : '📤 Отправить';
+    openMo(`
+      <h3>${title}</h3>
+      <div class="info">${editId ? 'Измените оценку, категорию или текст.' : 'Ваш отзыв поможет улучшить Javier IDE.'}</div>
+      <label>Оценка:</label>
+      <div class="rating" id="fb-rating">
+        <span class="rating-star" data-value="1">★</span>
+        <span class="rating-star" data-value="2">★</span>
+        <span class="rating-star" data-value="3">★</span>
+        <span class="rating-star" data-value="4">★</span>
+        <span class="rating-star" data-value="5">★</span>
+      </div>
+      <div class="rating-label" id="fb-rating-label">Выберите оценку</div>
+      <label>Категория:</label>
+      <div class="feedback-categories" id="fb-categories">
+        <div class="feedback-cat" data-cat="feature">💡 Функция</div>
+        <div class="feedback-cat" data-cat="bug">🐛 Баг</div>
+        <div class="feedback-cat" data-cat="ux">🎨 UX/UI</div>
+        <div class="feedback-cat" data-cat="ai">🤖 AI</div>
+        <div class="feedback-cat" data-cat="other">📝 Другое</div>
+      </div>
+      <label>Ваш отзыв:</label>
+      <textarea id="fb-text" placeholder="Расскажите..." rows="5">${existingFeedback ? esc(existingFeedback.text) : ''}</textarea>
+      <label>Email (опционально):</label>
+      <input type="email" id="fb-email" value="${existingFeedback ? esc(existingFeedback.email) : esc(defaultEmail)}" placeholder="your@email.com"/>
+      <div class="ma"><button class="sec" onclick="closeMo()">Отмена</button><button class="pri" onclick="Feedback.submit('${editId || ''}')">${submitBtnText}</button></div>
+    `);
+    if (existingFeedback) {
+      document.querySelectorAll('#fb-rating .rating-star').forEach(star => {
+        if (parseInt(star.dataset.value) <= existingFeedback.rating) star.classList.add('active');
+      });
+      $('fb-rating').dataset.value = existingFeedback.rating;
+      const ratingLabels = ['', 'Ужасно 😞', 'Плохо 😕', 'Нормально 😐', 'Хорошо 😊', 'Отлично! 🤩'];
+      $('fb-rating-label').textContent = ratingLabels[existingFeedback.rating];
+      $('fb-rating-label').style.color = 'var(--star)';
+      const catEl = document.querySelector(`#fb-categories .feedback-cat[data-cat="${existingFeedback.category}"]`);
+      if (catEl) catEl.classList.add('selected');
+    }
+    const ratingLabels = ['', 'Ужасно 😞', 'Плохо 😕', 'Нормально 😐', 'Хорошо 😊', 'Отлично! 🤩'];
+    document.querySelectorAll('#fb-rating .rating-star').forEach(star => {
+      star.onclick = () => {
+        const value = parseInt(star.dataset.value);
+        document.querySelectorAll('#fb-rating .rating-star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.value) <= value));
+        $('fb-rating-label').textContent = ratingLabels[value];
+        $('fb-rating-label').style.color = 'var(--star)';
+        $('fb-rating').dataset.value = value;
+      };
+    });
+    document.querySelectorAll('#fb-categories .feedback-cat').forEach(cat => {
+      cat.onclick = () => {
+        document.querySelectorAll('#fb-categories .feedback-cat').forEach(c => c.classList.remove('selected'));
+        cat.classList.add('selected');
+      };
+    });
+  },
+  submit(editId = '') {
+    const rating = parseInt($('fb-rating').dataset.value || 0);
+    const category = document.querySelector('#fb-categories .feedback-cat.selected')?.dataset.cat;
+    const text = $('fb-text').value.trim();
+    const email = $('fb-email').value.trim();
+    if (!rating) return toast('Поставьте оценку', 'error');
+    if (!category) return toast('Выберите категорию', 'error');
+    if (text.length < 10) return toast('Отзыв слишком короткий', 'error');
+    const user = Auth.getCurrentUser();
+    if (editId) {
+      if (this.update(editId, { rating, category, text, email })) {
+        closeMo(); toast('✓ Отзыв обновлён!', 'success', 3000); renderLandingReviews();
+      } else toast('Ошибка', 'error');
+    } else {
+      this.save({
+        id: 'fb_' + Date.now(), rating, category, text, email,
+        userName: user?.name || 'Аноним', userEmail: user?.email || '',
+        createdAt: Date.now(), appVersion: '2.0'
+      });
+      closeMo(); toast('✓ Спасибо!', 'success', 3000); renderLandingReviews();
+    }
+  },
+  edit(id) { this.openSubmit(id); },
+  openList() {
+    E.profileMenu.classList.remove('open');
+    const all = this.getAll().sort((a, b) => b.createdAt - a.createdAt);
+    const stats = this.getStats();
+    const user = Auth.getCurrentUser();
+    const catLabels = { feature: '💡 Функция', bug: '🐛 Баг', ux: '🎨 UX', ai: '🤖 AI', other: '📝 Другое' };
+    const listHtml = all.length === 0 
+      ? '<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px">⭐</div><div>Пока нет отзывов</div></div>'
+      : all.map(f => {
+          const isOwner = user && (f.userEmail === user.email || f.userName === user.name);
+          const editedMark = f.isEdited ? '<span style="font-size:10px;color:var(--muted);font-style:italic;margin-left:6px">(изменён)</span>' : '';
+          return `<div class="feedback-item"><div class="feedback-item-header"><div class="feedback-item-stars">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}${editedMark}</div><div class="feedback-item-meta">${new Date(f.createdAt).toLocaleDateString('ru')}<span class="feedback-item-cat">${catLabels[f.category]}</span></div></div><div class="feedback-item-text">${esc(f.text)}</div>${isOwner ? `<div class="feedback-item-actions"><button onclick="Feedback.edit('${f.id}')" style="background:var(--warn);color:#1a1a1a;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px">✏️ Редактировать</button><button onclick="Feedback.delete('${f.id}');Feedback.openList()" style="background:var(--err);color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px">🗑️ Удалить</button></div>` : ''}</div>`;
+        }).join('');
+    openMo(`<h3>⭐ Мои отзывы</h3><div class="feedback-stats"><div class="feedback-stat"><div class="feedback-stat-value">${stats.count}</div><div class="feedback-stat-label">Всего</div></div><div class="feedback-stat"><div class="feedback-stat-value">${stats.avg}</div><div class="feedback-stat-label">Средняя</div></div><div class="feedback-stat"><div class="feedback-stat-value">${stats.recommend}%</div><div class="feedback-stat-label">Рекомендуют</div></div><div class="feedback-stat"><div class="feedback-stat-value">${Object.keys(stats.categories).length}</div><div class="feedback-stat-label">Категорий</div></div></div><div class="feedback-list">${listHtml}</div><div class="ma"><button class="sec" onclick="Feedback.exportJSON()">📥 Экспорт JSON</button><button class="pri" onclick="Feedback.openSubmit()">💬 Новый отзыв</button></div>`);
+  },
+  exportJSON() {
+    const blob = new Blob([JSON.stringify(this.getAll(), null, 2)], { type: 'application/json' });
+    saveAs(blob, `javier-feedback-${Date.now()}.json`);
+    toast('Экспортировано', 'success');
+  }
+};
+
+function renderLandingReviews() {
+  const all = Feedback.getAll().sort((a, b) => b.createdAt - a.createdAt);
+  const stats = Feedback.getStats();
+  $('stat-count').textContent = stats.count;
+  $('stat-avg').textContent = stats.avg;
+  $('stat-5stars').textContent = stats.recommend + '%';
+  const grid = $('reviews-grid');
+  if (all.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">💬</div><div>Пока нет отзывов. Будьте первым!</div><div style="margin-top:16px"><button class="btn-review" onclick="Feedback.openSubmit()">💬 Оставить отзыв</button></div></div>';
+    return;
+  }
+  const catLabels = { feature: '💡 Функция', bug: '🐛 Баг', ux: '🎨 UX', ai: '🤖 AI', other: '📝 Другое' };
+  grid.innerHTML = all.slice(0, 6).map(f => {
+    const editedMark = f.isEdited ? `<div class="review-edited">✏️ Изменён ${new Date(f.editedAt).toLocaleDateString('ru')}</div>` : '';
+    return `<div class="review-card"><div class="review-card-header"><div class="review-author"><div class="review-avatar">${f.userName === 'Аноним' ? '👤' : '👨‍💻'}</div><div><div class="review-author-name">${esc(f.userName)}</div><div class="review-author-date">${new Date(f.createdAt).toLocaleDateString('ru')}</div></div></div><div class="review-stars">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</div></div><div class="review-category">${catLabels[f.category]}</div><div class="review-text">${esc(f.text)}</div>${editedMark}</div>`;
+  }).join('');
+}
+
+// ============ PROFILE ============
+const Profile = {
+  toggleMenu(e) { e.stopPropagation(); E.profileMenu.classList.toggle('open'); },
+  refreshUI() {
+    const user = Auth.getCurrentUser(); if (!user) return;
+    document.documentElement.setAttribute('data-theme', user.theme || 'dark');
+    E.hdrAvatar.textContent = user.avatar || '👤'; E.hdrName.textContent = user.name || 'User';
+    E.menuAvatar.textContent = user.avatar || '👤'; E.menuName.textContent = user.name || 'User';
+    E.menuEmail.textContent = user.isGuest ? 'Гостевой режим' : (user.email || '—');
+    E.welcomeUser.innerHTML = user.isGuest ? '👻 Добро пожаловать, Гость!' : `${user.avatar || '👤'} Привет, ${esc(user.name)}!`;
+    E.suser.textContent = user.isGuest ? '👻 Гость' : `👤 ${user.name}`;
+    if (monacoReady) monaco.editor.setTheme(user.theme === 'light' ? 'vs' : 'vs-dark');
+  },
+  openSettings() { E.profileMenu.classList.remove('open'); const user = Auth.getCurrentUser(); if (!user) return; openMo(`<h3>⚙️ Настройки</h3><label>Имя:</label><input type="text" id="pf-name" value="${esc(user.name)}" ${user.isGuest ? 'disabled' : ''}/><label>Тема:</label><select id="pf-theme" onchange="Profile.setTheme(this.value)"><option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>🌙 Тёмная</option><option value="light" ${user.theme === 'light' ? 'selected' : ''}>☀️ Светлая</option></select><div class="ma"><button class="pri" onclick="Profile.save()">Сохранить</button></div>`); },
+  setTheme(theme) { document.documentElement.setAttribute('data-theme', theme); Auth.updateUser({ theme }); if (monacoReady) monaco.editor.setTheme(theme === 'light' ? 'vs' : 'vs-dark'); },
+  save() { const user = Auth.getCurrentUser(); if (user.isGuest) return toast('Недоступно', 'error'); const name = $('pf-name').value.trim(); if (name.length < 2) return toast('Имя короткое', 'error'); Auth.updateUser({ name }); closeMo(); toast('Сохранено', 'success'); }
+};
+
+document.addEventListener('click', e => { if (!e.target.closest('.profile-btn') && !e.target.closest('.profile-menu')) E.profileMenu.classList.remove('open'); });
+document.querySelectorAll('.auth-tab').forEach(t => { t.onclick = () => { document.querySelectorAll('.auth-tab').forEach(x => x.classList.remove('active')); document.querySelectorAll('.auth-form').forEach(x => x.classList.remove('active')); t.classList.add('active'); $('form-' + t.dataset.auth).classList.add('active'); Auth.hideMsg(); }; });
+E.aiInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); AI.sendChat(); } });
+E.aiInput.addEventListener('input', () => { E.aiInput.style.height = '40px'; E.aiInput.style.height = Math.min(120, E.aiInput.scrollHeight) + 'px'; });
+
+function startIDE() { E.landing.classList.add('hidden'); E.ide.classList.add('visible'); setTimeout(() => monacoEditor && monacoEditor.layout(), 100); }
+function showLanding() { E.landing.classList.remove('hidden'); E.ide.classList.remove('visible'); renderLandingReviews(); }
+function saveAll() { if (!S.options.autosave || !S.currentProjectId || !monacoReady) return; if (S.active && monacoEditor) S.files[S.active] = monacoEditor.getValue(); Projects.saveCurrent(); E.ssaved.textContent = '✓ Сохранено'; markTabModified(S.active, false); }
+function loadAll() {
+  const data = Projects.load();
+  if (data.activeId && data.projects[data.activeId]) Projects.loadProject(data.activeId);
+  else if (Object.keys(data.projects).length > 0) Projects.loadProject(Object.keys(data.projects)[0]);
+  else Projects.loadProject(Projects.create('Мой первый проект'));
+  $('opt-as').checked = S.options.autosave;
+}
+
+const fileIcon = n => ({js:'📜',html:'🌐',css:'🎨',md:'📝',json:'📦'}[n.split('.').pop()] || '📄');
+function renderTree() { E.ftree.innerHTML = ''; Object.keys(S.files).sort().forEach(n => { const d = document.createElement('div'); d.className = 'fitem' + (n===S.active?' active':''); d.innerHTML = `<span><span style="opacity:.7;margin-right:6px">${fileIcon(n)}</span>${esc(n)}</span><button class="del">×</button>`; d.querySelector('.del').onclick = e => { e.stopPropagation(); A.delFile(n); }; d.onclick = () => loadFile(n); E.ftree.appendChild(d); }); }
+
+function updateStats() {
+  const files = Object.keys(S.files);
+  const totalLines = Object.values(S.files).reduce((s,c) => s + c.split('\n').length, 0);
+  const js = files.filter(f => f.endsWith('.js')).length;
+  const html = files.filter(f => f.endsWith('.html')).length;
+  const fbStats = Feedback.getStats();
+  E.stats.innerHTML = `<div class="stat"><span>Файлов</span><span>${files.length}</span></div><div class="stat"><span>JS</span><span>${js}</span></div><div class="stat"><span>HTML</span><span>${html}</span></div><div class="stat"><span>Строк</span><span>${totalLines}</span></div><div class="stat"><span>⭐ Отзывов</span><span>${fbStats.count}</span></div>`;
+}
+
+function updPv() { 
+  if (!S.active.endsWith('.html')) return; 
+  let h = S.files[S.active] || ''; 
+  
+  // Собираем все скрипты и стили для рендеринга во встроенном превью
+  const js = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`<script>try{${S.files[n]}}catch(e){console.error(e)}<\/script>`); 
+  const css = Object.keys(S.files).filter(n=>n.endsWith('.css')).map(n=>`<style>${S.files[n]}</style>`);
+  
+  if (h.includes('</head>')) {
+    h = h.replace('</head>', css.join('\n') + '\n</head>');
+  } else {
+    h = css.join('\n') + '\n' + h;
+  }
+  
+  h = h.includes('</body>') ? h.replace('</body>',js.join('\n')+'\n</body>') : h+'\n'+js.join('\n'); 
+  E.pvf.srcdoc = h; 
+}
+
+function log(t,s) { const d = document.createElement('div'); d.className = 'll '+t; d.textContent = s; E.con.appendChild(d); E.con.scrollTop = E.con.scrollHeight; }
+
+function run() { 
+  if (monacoReady && S.active) S.files[S.active] = monacoEditor.getValue();
+  
+  // Если запущен HTML-файл, открываем его в отдельной вкладке
+  if (S.active.endsWith('.html')) {
+    let html = S.files[S.active] || '';
+    
+    // Встраиваем локальные стили (CSS)
+    const cssStyles = Object.keys(S.files)
+      .filter(n => n.endsWith('.css'))
+      .map(n => `<style>/* ===== ${n} ===== */\n${S.files[n]}\n</style>`);
+      
+    if (html.includes('</head>')) {
+      html = html.replace('</head>', cssStyles.join('\n') + '\n</head>');
+    } else {
+      html = cssStyles.join('\n') + '\n' + html;
+    }
+    
+    // Встраиваем локальные скрипты (JS)
+    const jsScripts = Object.keys(S.files)
+      .filter(n => n.endsWith('.js'))
+      .map(n => `<script>// ===== ${n} =====\ntry{\n${S.files[n]}\n}catch(e){console.error("Error in ${n}:", e);}\n<\/script>`);
+      
+    if (html.includes('</body>')) {
+      html = html.replace('</body>', jsScripts.join('\n') + '\n</body>');
+    } else {
+      html = html + '\n' + jsScripts.join('\n');
+    }
+    
+    // Создаем временную ссылку (Blob) для открытия в новой вкладке
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    
+    if (!win) {
+      toast('Браузер заблокировал всплывающее окно. Пожалуйста, разрешите всплывающие окна в настройках браузера.', 'warn');
+    } else {
+      toast('HTML запущен на отдельной веб-странице', 'success');
+    }
+    return;
+  }
+  
+  // Обычный запуск JS-кода через консоль в песочнице
+  btmTab('con'); E.con.innerHTML = '<div class="ll info">🚀 Запуск...</div>'; 
+  const all = Object.keys(S.files).filter(n=>n.endsWith('.js')).map(n=>`// ===== ${n} =====\n${S.files[n]}`).join('\n\n'); 
+  $('sbx').srcdoc = `<script>const P=(t,a)=>window.parent.postMessage({t,a},'*');['log','warn','error','info'].forEach(m=>{const o=console[m];console[m]=(...a)=>{P(m,a.map(x=>{try{if(x instanceof Error)return x.stack||x.message;if(typeof x==='object')return JSON.stringify(x,null,2);return String(x)}catch(e){return String(x)}}))}});window.onerror=(m,u,l)=>P('error',['❌ '+m+' (строка '+l+')']);try{${all}}catch(e){console.error(e)}P('info',['✓ Завершено']);<\/script>`; 
+}
+
+window.addEventListener('message', e => { if (e.data && ['log','warn','error','info'].includes(e.data.t)) log(e.data.t, e.data.a.join(' ')); });
+
+function btmTab(t) { document.querySelectorAll('.btabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t)); document.querySelectorAll('.bc').forEach(c=>c.classList.toggle('active',c.id==='btm-'+t)); }
+document.querySelectorAll('.btabs button').forEach(b=>b.onclick=()=>btmTab(b.dataset.tab));
+document.querySelectorAll('.side-tabs button').forEach(b=>b.onclick=()=>{const t=b.dataset.tab;document.querySelectorAll('.side-tabs button').forEach(x=>x.classList.remove('active'));b.add('active');document.querySelectorAll('.side-c').forEach(c=>c.classList.remove('active'));$('tab-'+t).classList.add('active');if(t==='settings')updateStats();});
+
+const A = {
+  addFile() { const n = prompt('Имя файла:'); if (!n || S.files[n]) return; S.files[n] = ''; loadFile(n); saveAll(); },
+  delFile(n) { if (Object.keys(S.files).length<=1) return toast('Нельзя','error'); if (!confirm('Удалить '+n+'?')) return; delete S.files[n]; closeTab(n); if (Object.keys(S.files).length === 0) { S.files['main.js'] = '// Новый файл\n'; loadFile('main.js'); } saveAll(); renderTree(); },
+  preview() { if (!S.active.endsWith('.html')) return toast('Нужен HTML','error'); updPv(); btmTab('prv'); },
+  newProject() { Projects.createPrompt(); },
+  async exportZip() {
+    try {
+      if (monacoReady && S.active) S.files[S.active] = monacoEditor.getValue();
+      const z = new JSZip();
+      Object.entries(S.files).forEach(([n,c]) => z.file(n,c));
+      saveAs(await z.generateAsync({type:'blob'}), 'javier-project.zip');
+      toast('ZIP экспортирован','success');
+    } catch(e) { toast('Ошибка: '+e.message,'error'); }
+  },
+  importZip() {
+    const i = document.createElement('input');
+    i.type = 'file'; i.accept = '.zip,.js,.html,.css,.md,.json,.txt'; i.multiple = true;
+    i.onchange = async e => {
+      for (const f of e.target.files) {
+        if (f.name.endsWith('.zip')) {
+          try { const z = await JSZip.loadAsync(f); for (const [n,x] of Object.entries(z.files)) if (!x.dir) S.files[n] = await x.async('string'); }
+          catch(err){toast('Ошибка ZIP','error')}
+        } else S.files[f.name] = await f.text();
+      }
+      saveAll(); renderTree();
+      toast('Импортировано: '+e.target.files.length+' файлов','success');
+    };
+    i.click();
+  },
+  run,
+  ghModal() {
+    const ghToken = localStorage.getItem('javier_gh');
+    if (!ghToken) return toast('Введите GitHub токен в настройках', 'error');
+    openMo(`<h3>📤 GitHub Gist</h3><label>Описание:</label><input type="text" id="gh-d" value="Javier IDE project"/><label><input type="checkbox" id="gh-p" checked/> Публичный</label><div class="ma"><button class="sec" onclick="closeMo()">Отмена</button><button class="pri" onclick="A.pubGH()">Опубликовать</button></div>`);
+  },
+  async pubGH() {
+    const ghToken = localStorage.getItem('javier_gh');
+    if (!ghToken) return toast('Нет токена', 'error');
+    const desc = $('gh-d').value || 'Javier IDE project';
+    const pub = $('gh-p').checked;
+    const files = {};
+    if (monacoReady && S.active) S.files[S.active] = monacoEditor.getValue();
+    Object.entries(S.files).forEach(([n,c]) => files[n] = {content:c});
+    try {
+      closeMo(); toast('Публикация...','info',2000);
+      const r = await fetch('https://api.github.com/gists', { method: 'POST', headers: { 'Authorization': `token ${ghToken}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify({description:desc,public:pub,files}) });
+      if (!r.ok) throw new Error((await r.json()).message || `HTTP ${r.status}`);
+      const g = await r.json();
+      openMo(`<h3>✓ Опубликовано!</h3><input type="text" readonly value="${g.html_url}" onclick="this.select()"/><div class="ma"><button class="pri" onclick="window.open('${g.html_url}','_blank')">Открыть</button><button class="sec" onclick="navigator.clipboard.writeText('${g.html_url}').then(()=>toast('Скопировано','success'))">Копировать</button><button class="sec" onclick="closeMo()">Закрыть</button></div>`);
+    } catch(e) { toast('Ошибка: '+e.message,'error',5000); }
+  },
+  saveTok() { const t = E.ghtok.value.trim(); if (t && !t.includes('•')) { localStorage.setItem('javier_gh',t); E.ghtok.value = '•'.repeat(t.length); toast('Токен сохранён','success'); } else toast('Введите токен','error'); },
+  clearTok() { localStorage.removeItem('javier_gh'); E.ghtok.value=''; toast('Токен очищен','success'); }
+};
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); saveAll(); toast('Сохранено','success',1500); }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='Enter') { e.preventDefault(); A.run(); }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='w') { e.preventDefault(); if (S.active) closeTab(S.active); }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='w') { e.preventDefault(); if (S.active) closeTab(S.active); }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='n') { e.preventDefault(); A.addFile(); }
+});
+
+// Экспортируем объекты в глобальный scope (window) для корректной работы inline HTML-обработчиков (onsubmit, onclick)
+window.Auth = Auth;
+window.Projects = Projects;
+window.Collab = Collab;
+window.Share = Share;
+window.AI = AI;
+window.Feedback = Feedback;
+window.Profile = Profile;
+window.A = A;
+window.startIDE = startIDE;
+window.showLanding = showLanding;
+
+(function init() {
+  AI.init(); // Безопасная инициализация и валидация AI провайдера/моделей/режимов
+  const session = Auth.getSession();
+  if (!session) { E.authScreen.classList.remove('hidden'); E.landing.classList.add('hidden'); E.ide.classList.remove('visible'); renderLandingReviews(); return; }
+  const user = Auth.getCurrentUser();
+  if (!user) { Auth.setSession(null); E.authScreen.classList.remove('hidden'); return; }
+  document.documentElement.setAttribute('data-theme', user.theme || 'dark');
+  loadAll(); Profile.refreshUI(); E.authScreen.classList.add('hidden'); E.landing.classList.remove('hidden');
+  renderLandingReviews();
+  toast(`Добро пожаловать, ${user.name}!`, 'success', 2500);
+  setInterval(() => Collab.checkNotifications(), 5000);
+})();
+</script>
+</body>
+</html>
+```
